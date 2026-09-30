@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>彈跳冒險記 - 小數除法冒險</title>
+    <title>檸檬黃跳一跳 - 小數除法冒險</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -88,13 +88,13 @@
         <div id="start-menu" class="absolute inset-0 flex flex-col justify-center items-center bg-yellow-100/40 backdrop-blur-xs transition-opacity duration-300 p-4 z-30">
             <div id="start-menu-card" class="bg-white/95 backdrop-blur-md border-2 border-yellow-300 p-5 sm:p-7 rounded-3xl text-center shadow-2xl pop-in max-w-xs sm:max-w-sm w-full flex flex-col items-center">
                 <div id="main-theme-icon" class="text-4xl sm:text-5xl mb-1 animate-bounce">🍋</div>
-                <h2 id="main-title-text" class="text-xl sm:text-2xl font-black text-amber-600 mb-1">彈跳冒險記</h2>
+                <h2 id="main-title-text" class="text-xl sm:text-2xl font-black text-amber-600 mb-1">檸檬黃跳一跳</h2>
                 <p class="text-xs sm:text-sm text-slate-600 mb-3">掌握小數除法：除以 10、100、1000 的左移奧祕！</p>
                 
                 <div class="w-full space-y-2 mb-3">
                     <button onclick="startGameMode('math')" class="w-full py-2.5 sm:py-3 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-slate-900 font-black text-sm rounded-2xl shadow-md transition-all transform active:scale-95 flex items-center justify-center space-x-2 border border-yellow-500">
                         <span>📝</span>
-                        <span>答題前進模式</span>
+                        <span>答題前進模式 (3心心系統)</span>
                     </button>
                     <button onclick="startGameMode('timed')" class="w-full py-2.5 sm:py-3 bg-yellow-200 hover:bg-yellow-300 text-slate-900 font-black text-sm rounded-2xl shadow-md transition-all transform active:scale-95 flex items-center justify-center space-x-2 border border-yellow-300">
                         <span>⏱</span>
@@ -114,25 +114,25 @@
         </div>
 
         <!-- Math Question & Answer Overlay (Active in Math Mode) -->
-        <div id="math-overlay" class="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md border-2 border-amber-300 rounded-2xl p-3 sm:p-4 shadow-xl z-20 hidden flex flex-col items-center pop-in max-w-lg mx-auto">
-            <div class="flex justify-between w-full items-center mb-2">
+        <div id="math-overlay" class="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3 bg-white/95 backdrop-blur-md border-2 border-amber-300 rounded-2xl p-2.5 sm:p-4 shadow-xl z-20 hidden flex flex-col items-center pop-in max-w-lg mx-auto">
+            <div class="flex justify-between w-full items-center mb-1 sm:mb-2">
                 <div class="flex items-center space-x-2">
-                    <span id="stage-badge" class="text-[10px] sm:text-xs font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-200">階段 1：基礎直觀左移</span>
+                    <span id="stage-badge" class="text-[9px] sm:text-xs font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-200">階段 1：基礎直觀左移</span>
                 </div>
                 <div class="flex items-center space-x-1">
-                    <button onclick="endGame()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-black text-[10px] sm:text-xs px-2.5 py-1 rounded-lg border border-amber-300 flex items-center space-x-1 active:scale-95 transition-all shadow-sm">
+                    <button onclick="endGame()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-black text-[9px] sm:text-xs px-2 py-0.5 sm:py-1 rounded-lg border border-amber-300 flex items-center space-x-1 active:scale-95 transition-all shadow-sm">
                         <span>🏁</span>
                         <span>結束並結算積分</span>
                     </button>
-                    <span id="question-counter" class="text-[10px] sm:text-xs text-slate-500 font-bold ml-1">第 1 題</span>
+                    <span id="question-counter" class="text-[9px] sm:text-xs text-slate-500 font-bold ml-1">第 1 题</span>
                 </div>
             </div>
-            <div id="math-question-text" class="text-lg sm:text-2xl font-black text-amber-700 mb-2 tracking-wide text-center">
+            <div id="math-question-text" class="text-base sm:text-2xl font-black text-amber-700 mb-1 sm:mb-2 tracking-wide text-center">
                 3 ÷ 10 = ?
             </div>
             <div class="flex space-x-2 w-full">
-                <input type="text" id="math-input" placeholder="請輸入答案 (例如 0.3)" onkeydown="if(event.key === 'Enter'){ submitMathAnswer(); }" class="flex-1 bg-yellow-50 border-2 border-yellow-300 rounded-xl px-3 py-2 text-center text-base sm:text-lg font-black text-slate-800 focus:outline-none focus:border-amber-500">
-                <button onclick="submitMathAnswer()" class="bg-amber-400 hover:bg-amber-500 text-slate-900 font-black px-5 py-2 sm:py-2.5 rounded-xl shadow transition-all active:scale-95 text-sm sm:text-base">送出</button>
+                <input type="text" id="math-input" placeholder="請輸入答案 (例如 0.3)" onkeydown="if(event.key === 'Enter'){ submitMathAnswer(); }" class="flex-1 bg-yellow-50 border-2 border-yellow-300 rounded-xl px-3 py-1.5 sm:py-2 text-center text-sm sm:text-lg font-black text-slate-800 focus:outline-none focus:border-amber-500">
+                <button onclick="submitMathAnswer()" class="bg-amber-400 hover:bg-amber-500 text-slate-900 font-black px-4 sm:px-5 py-1.5 sm:py-2.5 rounded-xl shadow transition-all active:scale-95 text-xs sm:text-base">送出</button>
             </div>
         </div>
     </main>
@@ -154,7 +154,7 @@
             <div class="flex justify-between items-center w-full mb-2">
                 <h3 class="text-base sm:text-lg font-black text-amber-600 flex items-center space-x-1">
                     <span>💡</span>
-                    <span>小數除法教學動畫</span>
+                    <span>小數除法教學動畫 (第 1.22 課)</span>
                 </h3>
                 <button onclick="closeHintModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg px-2">✕</button>
             </div>
@@ -638,7 +638,7 @@
                     stageBadge.textContent = "階段 4：綜合隨機挑戰";
                     const randType = Math.floor(Math.random() * 3) + 1;
                     if (randType === 1) {
-                        const baseNums = [3, 5, 24, 87, 420, 68, 91, 56, 35];
+                        const baseNums = [3, 5, 24, 87, 420, 68, 91];
                         const divisors = [10, 100, 1000];
                         const num = baseNums[Math.floor(Math.random() * baseNums.length)];
                         const div = divisors[Math.floor(Math.random() * divisors.length)];
@@ -647,7 +647,7 @@
                         qText = `${num} ÷ ${div} = ?`;
                         steps = div === 10 ? 1 : (div === 100 ? 2 : 3);
                     } else if (randType === 2) {
-                        const numPool = [45, 82, 360, 71, 530, 95, 5, 89 ,65];
+                        const numPool = [45, 82, 360, 71, 530, 95];
                         const divPool = [10, 100, 1000];
                         const num = numPool[Math.floor(Math.random() * numPool.length)];
                         const div = divPool[Math.floor(Math.random() * divPool.length)];
@@ -658,7 +658,7 @@
                     } else {
                         const divisors = [10, 100];
                         const div = divisors[Math.floor(Math.random() * divisors.length)];
-                        const targetAnsOptions = [0.05, 0.12, 0.35, 0.8, 0.04, 0.25, 0.07, 0.06, 1.25 , 2.68];
+                        const targetAnsOptions = [0.05, 0.12, 0.35, 0.8, 0.04, 0.25, 0.07];
                         const targetAns = targetAnsOptions[Math.floor(Math.random() * targetAnsOptions.length)];
                         const realNum = (targetAns * div).toFixed(2).replace(/\.?0+$/, '');
                         qText = `? ÷ ${div} = ${targetAns}`;
