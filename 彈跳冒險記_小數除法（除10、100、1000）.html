@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>彈跳冒險記 - 小數除法冒險</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            background-color: var(--bg-color, #fefce8);
+            transition: background-color 0.3s ease;
+        }
+        .grid-background {
+            background-color: #ffffff;
+            background-image: 
+                linear-gradient(to right, var(--grid-line, #fef08a) 2px, transparent 2px),
+                linear-gradient(to bottom, var(--grid-line, #fef08a) 2px, transparent 2px);
+            background-size: 40px 40px;
+            border: 6px solid var(--border-color, #facc15);
+            box-shadow: 0 10px 25px -5px rgba(250, 204, 21, 0.3);
+            transition: border-color 0.3s ease, background-image 0.3s ease;
+        }
+        canvas {
+            display: block;
+            touch-action: none;
+        }
+        .pop-in {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="h-[100dvh] w-screen overflow-hidden flex flex-col justify-between items-center text-slate-800 p-2 sm:p-4 md:p-6 lg:max-w-4xl lg:mx-auto">
+
+    <header class="w-full max-w-md sm:max-w-xl md:max-w-2xl p-3 px-4 flex justify-between items-center z-10 bg-white/90 backdrop-blur-md rounded-2xl shadow-sm border-2 border-yellow-300">
+        <div id="timer-container" class="flex flex-col">
+            <span class="text-[10px] sm:text-xs text-amber-700 font-bold tracking-wider">剩餘時間</span>
+            <div class="flex items-center space-x-1">
+                <span id="timer" class="text-lg sm:text-xl font-black text-amber-600">45</span>
+                <span class="text-[10px] sm:text-xs text-amber-700">秒</span>
+            </div>
+        </div>
+        <div id="hearts-container" class="hidden flex flex-col items-center">
+            <span class="text-[10px] sm:text-xs text-rose-600 font-bold tracking-wider">剩餘生命</span>
+            <div id="hearts-display" class="flex space-x-1 text-base sm:text-lg">❤️❤❤️</div>
+        </div>
+        <div id="mode-display" class="flex flex-col items-center">
+            <span class="text-[10px] sm:text-xs text-yellow-800 font-bold tracking-wider">遊戲模式</span>
+            <span id="current-mode-name" class="text-xs sm:text-sm font-black text-amber-700 bg-yellow-200/80 px-2 py-0.5 rounded-full">限時挑戰</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <span class="text-[10px] sm:text-xs text-amber-700 font-bold tracking-wider">當前得分</span>
+            <div class="flex items-center space-x-1">
+                <span id="score" class="text-xl sm:text-2xl font-black text-slate-900">0</span>
+                <span id="combo-badge" class="hidden text-[10px] bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 px-1 py-0.5 rounded-full font-black animate-pulse">COMBO</span>
+            </div>
+        </div>
+        <div class="flex flex-col items-end">
+            <span class="text-[10px] sm:text-xs text-amber-700 font-bold tracking-wider">總積分</span>
+            <span id="total-points" class="text-lg sm:text-xl font-black text-amber-600">0</span>
+        </div>
+    </header>
+
+    <main class="relative flex-1 w-full max-w-md sm:max-w-xl md:max-w-2xl my-2 flex justify-center items-center overflow-hidden rounded-3xl grid-background">
+        
+        <!-- Decorative doodles -->
+        <div class="absolute top-2 left-3 text-sky-600 font-bold text-lg select-none pointer-events-none opacity-85">~ ~ ~</div>
+        <div class="absolute top-2 right-3 text-sky-700 font-bold text-lg select-none pointer-events-none opacity-85">🌀 🎨</div>
+        <div class="absolute bottom-2 left-3 text-amber-600 text-xs font-bold select-none pointer-events-none">✨ 小數除法冒險</div>
+
+        <!-- Hint Button Top-Right -->
+        <button onclick="openHintModal()" class="absolute top-3 right-3 bg-yellow-300 hover:bg-yellow-400 text-slate-900 font-black text-xs sm:text-sm px-3 py-1.5 rounded-full shadow-md border border-yellow-400 z-20 flex items-center space-x-1 transition-all active:scale-95">
+            <span>💡</span>
+            <span>教學提示</span>
+        </button>
+
+        <canvas id="gameCanvas" class="w-full h-full cursor-pointer z-10"></canvas>
+        
+        <!-- Start Menu -->
+        <div id="start-menu" class="absolute inset-0 flex flex-col justify-center items-center bg-yellow-100/40 backdrop-blur-xs transition-opacity duration-300 p-4 z-30">
+            <div id="start-menu-card" class="bg-white/95 backdrop-blur-md border-2 border-yellow-300 p-5 sm:p-7 rounded-3xl text-center shadow-2xl pop-in max-w-xs sm:max-w-sm w-full flex flex-col items-center">
+                <div id="main-theme-icon" class="text-4xl sm:text-5xl mb-1 animate-bounce">🍋</div>
+                <h2 id="main-title-text" class="text-xl sm:text-2xl font-black text-amber-600 mb-1">彈跳冒險記</h2>
+                <p class="text-xs sm:text-sm text-slate-600 mb-3">掌握小數除法：除以 10、100、1000 的左移奧祕！</p>
+                
+                <div class="w-full space-y-2 mb-3">
+                    <button onclick="startGameMode('math')" class="w-full py-2.5 sm:py-3 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-slate-900 font-black text-sm rounded-2xl shadow-md transition-all transform active:scale-95 flex items-center justify-center space-x-2 border border-yellow-500">
+                        <span>📝</span>
+                        <span>答題前進模式</span>
+                    </button>
+                    <button onclick="startGameMode('timed')" class="w-full py-2.5 sm:py-3 bg-yellow-200 hover:bg-yellow-300 text-slate-900 font-black text-sm rounded-2xl shadow-md transition-all transform active:scale-95 flex items-center justify-center space-x-2 border border-yellow-300">
+                        <span>⏱</span>
+                        <span>限時挑戰模式 (45秒)</span>
+                    </button>
+                    <button onclick="startGameMode('endless')" class="w-full py-2.5 sm:py-3 bg-sky-100 hover:bg-sky-200 text-sky-900 font-black text-sm rounded-2xl shadow-md transition-all transform active:scale-95 flex items-center justify-center space-x-2 border border-sky-200">
+                        <span>✨</span>
+                        <span>不限時暢玩模式</span>
+                    </button>
+                    <button onclick="openShopModal()" class="w-full py-2.5 sm:py-3 bg-purple-100 hover:bg-purple-200 text-purple-900 font-black text-sm rounded-2xl shadow-md transition-all transform active:scale-95 flex items-center justify-center space-x-2 border border-purple-300">
+                        <span>🛒</span>
+                        <span>積分解鎖主題商場</span>
+                    </button>
+                </div>
+                <div class="text-[10px] sm:text-xs text-slate-500 font-medium">支援手機、平板與電腦觸控/鍵盤/滑鼠操作</div>
+            </div>
+        </div>
+
+        <!-- Math Question & Answer Overlay (Active in Math Mode) -->
+        <div id="math-overlay" class="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md border-2 border-amber-300 rounded-2xl p-3 sm:p-4 shadow-xl z-20 hidden flex flex-col items-center pop-in max-w-lg mx-auto">
+            <div class="flex justify-between w-full items-center mb-2">
+                <div class="flex items-center space-x-2">
+                    <span id="stage-badge" class="text-[10px] sm:text-xs font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-200">階段 1：基礎直觀左移</span>
+                </div>
+                <div class="flex items-center space-x-1">
+                    <button onclick="endGame()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-black text-[10px] sm:text-xs px-2.5 py-1 rounded-lg border border-amber-300 flex items-center space-x-1 active:scale-95 transition-all shadow-sm">
+                        <span>🏁</span>
+                        <span>結束並結算積分</span>
+                    </button>
+                    <span id="question-counter" class="text-[10px] sm:text-xs text-slate-500 font-bold ml-1">第 1 題</span>
+                </div>
+            </div>
+            <div id="math-question-text" class="text-lg sm:text-2xl font-black text-amber-700 mb-2 tracking-wide text-center">
+                3 ÷ 10 = ?
+            </div>
+            <div class="flex space-x-2 w-full">
+                <input type="text" id="math-input" placeholder="請輸入答案 (例如 0.3)" onkeydown="if(event.key === 'Enter'){ submitMathAnswer(); }" class="flex-1 bg-yellow-50 border-2 border-yellow-300 rounded-xl px-3 py-2 text-center text-base sm:text-lg font-black text-slate-800 focus:outline-none focus:border-amber-500">
+                <button onclick="submitMathAnswer()" class="bg-amber-400 hover:bg-amber-500 text-slate-900 font-black px-5 py-2 sm:py-2.5 rounded-xl shadow transition-all active:scale-95 text-sm sm:text-base">送出</button>
+            </div>
+        </div>
+    </main>
+
+    <div id="power-footer" class="w-full max-w-md sm:max-w-xl md:max-w-2xl px-4 py-2 z-10 flex flex-col items-center bg-white/80 rounded-2xl border border-yellow-200 shadow-sm">
+        <div class="w-full bg-yellow-100 rounded-full h-3 overflow-hidden p-0.5 border border-yellow-300 shadow-inner">
+            <div id="power-bar" class="bg-gradient-to-r from-yellow-300 via-amber-400 to-sky-400 h-full rounded-full w-0 transition-all duration-75"></div>
+        </div>
+        <span id="power-hint" class="text-xs sm:text-sm text-amber-800 font-bold mt-1">長按滑鼠/觸控或按空白鍵蓄力，放開跳躍 🍋 (電腦也可用空白鍵跳躍)</span>
+    </div>
+
+    <footer class="w-full text-center py-1 text-[11px] sm:text-xs text-slate-500 font-medium z-10">
+        — Ms. Hea Limited｜小數除法冒險 (手機/平板/電腦全支援)｜網頁由Google Gemini製作 —
+    </footer>
+
+    <!-- Hint Modal with Carousel -->
+    <div id="hint-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 hidden opacity-0 transition-opacity duration-300 p-3">
+        <div class="bg-white border-2 border-yellow-300 rounded-3xl p-5 sm:p-7 w-full max-w-md sm:max-w-lg text-center shadow-2xl pop-in flex flex-col items-center text-slate-800 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center w-full mb-2">
+                <h3 class="text-base sm:text-lg font-black text-amber-600 flex items-center space-x-1">
+                    <span>💡</span>
+                    <span>小數除法教學動畫</span>
+                </h3>
+                <button onclick="closeHintModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg px-2">✕</button>
+            </div>
+            
+            <div class="relative w-full aspect-[4/3] bg-yellow-50 border-2 border-yellow-200 rounded-2xl overflow-hidden mb-3 shadow-inner flex items-center justify-center">
+                <img id="hint-carousel-img" src="18.jpg" alt="教學圖片" class="w-full h-full object-contain" onerror="this.src='https://placehold.co/400x300/fef08a/854d0e?text=Math+Animation+Step';">
+                <div class="absolute bottom-2 bg-slate-900/60 backdrop-blur-xs text-white text-xs px-3 py-1 rounded-full font-bold">
+                    步驟 <span id="hint-current-step">1</span> / 6 (動態演示)
+                </div>
+            </div>
+
+            <div class="flex space-x-3 w-full mb-4">
+                <button onclick="prevHintStep()" class="flex-1 py-2 sm:py-2.5 bg-yellow-100 hover:bg-yellow-200 text-amber-900 font-black rounded-xl border border-yellow-300 text-xs sm:text-sm shadow-sm">◀ 上一步</button>
+                <button onclick="toggleCarouselAutoPlay()" id="autoplay-btn" class="py-2 sm:py-2.5 px-4 bg-amber-400 hover:bg-amber-500 text-slate-900 font-black rounded-xl text-xs sm:text-sm shadow-sm">▶ 自動播放動畫</button>
+                <button onclick="nextHintStep()" class="flex-1 py-2 sm:py-2.5 bg-yellow-100 hover:bg-yellow-200 text-amber-900 font-black rounded-xl border border-yellow-300 text-xs sm:text-sm shadow-sm">下一步 ▶</button>
+            </div>
+
+            <div class="bg-yellow-50/80 border border-yellow-200 rounded-2xl p-3 w-full text-left text-xs sm:text-sm text-slate-700 space-y-1">
+                <p class="font-bold text-amber-800 mb-1">📌 核心口訣：</p>
+                <p>• 除以 10：小數點向左移動 1 位</p>
+                <p>• 除以 100：小數點向左移動 2 位</p>
+                <p>• 除以 1000：小數點向左移動 3 位</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shop Modal -->
+    <div id="shop-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 hidden opacity-0 transition-opacity duration-300 p-3">
+        <div class="bg-white border-2 border-purple-300 rounded-3xl p-5 sm:p-7 w-full max-w-md sm:max-w-lg text-center shadow-2xl pop-in flex flex-col items-center text-slate-800 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center w-full mb-3">
+                <h3 class="text-base sm:text-lg font-black text-purple-600 flex items-center space-x-1">
+                    <span>🛒</span>
+                    <span>積分解鎖主題商場</span>
+                </h3>
+                <button onclick="closeShopModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg px-2">✕</button>
+            </div>
+            
+            <div class="flex items-center justify-between w-full bg-purple-50 border border-purple-200 rounded-2xl p-3 mb-4">
+                <span class="text-xs sm:text-sm font-bold text-purple-900">可用積分 (總得分)：</span>
+                <span id="shop-points-display" class="text-xl sm:text-2xl font-black text-purple-700">0 點</span>
+            </div>
+
+            <div id="shop-items-container" class="w-full space-y-3 mb-4">
+                <!-- Dynamically rendered theme cards -->
+            </div>
+
+            <button onclick="closeShopModal()" class="w-full py-2.5 sm:py-3 bg-purple-200 hover:bg-purple-300 text-purple-900 font-black rounded-xl text-xs sm:text-sm shadow-sm">
+                返回主選單
+            </button>
+        </div>
+    </div>
+
+    <!-- Error Teaching Feedback Modal -->
+    <div id="feedback-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 hidden opacity-0 transition-opacity duration-300 p-4">
+        <div class="bg-white border-2 border-rose-300 rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl pop-in flex flex-col items-center text-slate-800">
+            <div class="text-4xl mb-2 animate-bounce">❌</div>
+            <h3 class="text-xl font-black text-rose-600 mb-1">哎呀！答錯囉 (-1 心)</h3>
+            <p id="feedback-message" class="text-xs sm:text-sm text-slate-600 mb-4 bg-rose-50 p-3 rounded-2xl border border-rose-200">
+                除以 10 時，小數點要向左移動 1 位！
+            </p>
+            <button onclick="closeFeedbackModal()" class="w-full py-3 bg-yellow-300 hover:bg-yellow-400 text-slate-900 font-black text-sm rounded-2xl shadow-lg transform active:scale-95 transition-all">
+                知道了，繼續挑戰！ 🍋
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="gameover-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 hidden opacity-0 transition-opacity duration-300 p-4">
+        <div class="bg-white border-2 border-yellow-300 rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl pop-in flex flex-col items-center text-slate-800">
+            <div class="text-5xl mb-2 animate-bounce">🏆</div>
+            <h2 class="text-2xl font-black text-amber-600 mb-1">遊戲結束！</h2>
+            <p id="reward-title" class="text-xs sm:text-sm text-amber-700 font-bold mb-4 bg-yellow-100 px-3 py-1 rounded-full border border-yellow-300">解鎖獎勵：獲得積分</p>
+
+            <div class="bg-yellow-50/70 border border-yellow-200 rounded-2xl p-4 w-full mb-6 space-y-3">
+                <div class="flex justify-between items-center text-sm sm:text-base">
+                    <span class="text-slate-600">本局得分 (積分+<span id="earned-points">0</span>)</span>
+                    <span id="final-score" class="text-2xl font-black text-amber-600">0</span>
+                </div>
+                <div class="flex justify-between items-center text-sm sm:text-base">
+                    <span class="text-slate-600">成功跳躍格數</span>
+                    <span id="final-steps" class="text-lg font-bold text-slate-900">0 格</span>
+                </div>
+                <div class="flex justify-between items-center text-sm sm:text-base">
+                    <span class="text-slate-600">最高連擊</span>
+                    <span id="final-max-combo" class="text-lg font-bold text-amber-600">x1</span>
+                </div>
+            </div>
+
+            <button onclick="returnToMenu()" class="w-full py-3 bg-yellow-300 hover:bg-yellow-400 text-slate-900 font-black text-sm rounded-2xl shadow-lg transform active:scale-95 transition-all duration-150 flex justify-center items-center space-x-2 border border-yellow-400">
+                <span>🏠</span>
+                <span>返回主選單</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // UI Elements
+        const timerEl = document.getElementById('timer');
+        const timerContainer = document.getElementById('timer-container');
+        const heartsContainer = document.getElementById('hearts-container');
+        const heartsDisplay = document.getElementById('hearts-display');
+        const currentModeNameEl = document.getElementById('current-mode-name');
+        const scoreEl = document.getElementById('score');
+        const totalPointsEl = document.getElementById('total-points');
+        const shopPointsDisplay = document.getElementById('shop-points-display');
+        const comboBadge = document.getElementById('combo-badge');
+        const powerFooter = document.getElementById('power-footer');
+        const startMenu = document.getElementById('start-menu');
+        const startMenuCard = document.getElementById('start-menu-card');
+        const mainThemeIcon = document.getElementById('main-theme-icon');
+        const mainTitleText = document.getElementById('main-title-text');
+        const mathOverlay = document.getElementById('math-overlay');
+        const stageBadge = document.getElementById('stage-badge');
+        const questionCounterEl = document.getElementById('question-counter');
+        const mathQuestionText = document.getElementById('math-question-text');
+        const mathInput = document.getElementById('math-input');
+        const gameOverModal = document.getElementById('gameover-modal');
+        const feedbackModal = document.getElementById('feedback-modal');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const hintModal = document.getElementById('hint-modal');
+        const shopModal = document.getElementById('shop-modal');
+        const shopItemsContainer = document.getElementById('shop-items-container');
+        const hintCarouselImg = document.getElementById('hint-carousel-img');
+        const hintCurrentStepEl = document.getElementById('hint-current-step');
+        const autoplayBtn = document.getElementById('autoplay-btn');
+        const finalScoreEl = document.getElementById('final-score');
+        const finalStepsEl = document.getElementById('final-steps');
+        const finalMaxComboEl = document.getElementById('final-max-combo');
+        const earnedPointsEl = document.getElementById('earned-points');
+        const rewardTitleEl = document.getElementById('reward-title');
+
+        // Game Constants & Variables
+        let screenWidth, screenHeight;
+        let gameMode = 'timed'; 
+        let gameStarted = false;
+        let gameOver = false;
+        let timeLeft = 45;
+        let gameTimer = null;
+        let score = 0;
+        let totalPoints = parseInt(localStorage.getItem('lemon_total_points') || '0');
+        let combo = 0;
+        let maxCombo = 0;
+        let totalSteps = 0;
+
+        // Theme Shop Data & State with Icons & Names
+        const themes = [
+            { id: 'lemon', name: '陽光檸檬黃', cost: 0, icon: '🍋', title: '檸檬黃跳一跳', bgColor: '#fefce8', gridLine: '#fef08a', borderColor: '#facc15', lemonColor: '#fde047', textColor: 'text-amber-600', borderColorClass: 'border-yellow-300' },
+            { id: 'apple', name: '熱情紅蘋果', cost: 20, icon: '🍎', title: '紅蘋果跳一跳', bgColor: '#fff1f2', gridLine: '#ffe4e6', borderColor: '#f43f5e', lemonColor: '#fb7185', textColor: 'text-rose-600', borderColorClass: 'border-rose-300' },
+            { id: 'orange', name: '活力鮮香橙', cost: 35, icon: '🍊', title: '鮮香橙跳一跳', bgColor: '#fff7ed', gridLine: '#ffedd5', borderColor: '#f97316', lemonColor: '#fb923c', textColor: 'text-orange-600', borderColorClass: 'border-orange-300' },
+            { id: 'mint', name: '清新薄荷綠', cost: 50, icon: '🍈', title: '薄荷綠跳一跳', bgColor: '#f0fdf4', gridLine: '#dcfce7', borderColor: '#4ade80', lemonColor: '#86efac', textColor: 'text-emerald-600', borderColorClass: 'border-emerald-300' },
+            { id: 'sky', name: '蔚藍海洋風', cost: 65, icon: '🫐', title: '海洋風跳一跳', bgColor: '#f0f9ff', gridLine: '#e0f2fe', borderColor: '#38bdf8', lemonColor: '#7dd3fc', textColor: 'text-sky-600', borderColorClass: 'border-sky-300' },
+            { id: 'grape', name: '夢幻葡萄紫', cost: 80, icon: '🍇', title: '葡萄紫跳一跳', bgColor: '#faf5ff', gridLine: '#f3e8ff', borderColor: '#c084fc', lemonColor: '#d8b4fe', textColor: 'text-purple-600', borderColorClass: 'border-purple-300' },
+            { id: 'peach', name: '甜美蜜桃粉', cost: 100, icon: '🍑', title: '蜜桃粉跳一跳', bgColor: '#fff1f2', gridLine: '#ffe4e6', borderColor: '#fb7185', lemonColor: '#fda4af', textColor: 'text-rose-500', borderColorClass: 'border-rose-200' },
+            { id: 'matcha', name: '日式抹茶綠', cost: 130, icon: '🍵', title: '抹茶綠跳一跳', bgColor: '#f7fee7', gridLine: '#ecfccb', borderColor: '#84cc16', lemonColor: '#bef264', textColor: 'text-lime-600', borderColorClass: 'border-lime-300' },
+            { id: 'cyber', name: '電競霓虹黑', cost: 160, icon: '⚡', title: '霓虹黑跳一跳', bgColor: '#0f172a', gridLine: '#1e293b', borderColor: '#38bdf8', lemonColor: '#38bdf8', textColor: 'text-cyan-400', borderColorClass: 'border-cyan-500' },
+            { id: 'gold', name: '尊榮黃金鑽', cost: 220, icon: '👑', title: '黃金鑽跳一跳', bgColor: '#fefce8', gridLine: '#fef08a', borderColor: '#eab308', lemonColor: '#facc15', textColor: 'text-yellow-600', borderColorClass: 'border-yellow-400' }
+        ];
+        let unlockedThemes = JSON.parse(localStorage.getItem('lemon_unlocked_themes') || '["lemon"]');
+        let currentThemeId = localStorage.getItem('lemon_current_theme') || 'lemon';
+
+        totalPointsEl.textContent = totalPoints;
+
+        // Math Mode State variables
+        let hearts = 3;
+        let mathStage = 1; 
+        let mathStageQuestionCount = 0;
+        let totalQuestionCounter = 0;
+        let currentQuestion = null;
+        let lastQuestionText = "";
+
+        // Hint Carousel state
+        const hintImages = ['18.jpg', '19.jpg', '20.jpg', '21.jpg', '22.jpg', '23.jpg'];
+        let currentHintIdx = 0;
+        let hintAutoplayTimer = null;
+
+        // Camera & World Offset
+        let camera = { x: 0, y: 0, targetX: 0, targetY: 0 };
+
+        // Player object
+        let player = {
+            x: 0, y: 0, z: 0,
+            vx: 0, vy: 0, vz: 0,
+            radius: 16,
+            isJumping: false,
+            squish: 1
+        };
+
+        let isCharging = false;
+        let chargeTime = 0;
+        const maxChargeTime = 60;
+
+        let platforms = [];
+        let particles = [];
+        let floatingTexts = [];
+
+        function getCurrentTheme() {
+            return themes.find(t => t.id === currentThemeId) || themes[0];
+        }
+
+        function applyThemeStyles() {
+            const t = getCurrentTheme();
+            document.documentElement.style.setProperty('--bg-color', t.bgColor);
+            document.documentElement.style.setProperty('--grid-line', t.gridLine);
+            document.documentElement.style.setProperty('--border-color', t.borderColor);
+
+            mainThemeIcon.textContent = t.icon;
+            mainTitleText.textContent = t.title;
+            mainTitleText.className = `text-xl sm:text-2xl font-black ${t.textColor} mb-1`;
+            startMenuCard.className = `bg-white/95 backdrop-blur-md border-2 ${t.borderColorClass} p-5 sm:p-7 rounded-3xl text-center shadow-2xl pop-in max-w-xs sm:max-w-sm w-full flex flex-col items-center`;
+        }
+        applyThemeStyles();
+
+        function resize() {
+            screenWidth = canvas.parentElement.clientWidth;
+            screenHeight = canvas.parentElement.clientHeight;
+            canvas.width = screenWidth * window.devicePixelRatio;
+            canvas.height = screenHeight * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Shop Functions
+        function openShopModal() {
+            shopPointsDisplay.textContent = totalPoints + ' 點';
+            renderShopItems();
+            shopModal.classList.remove('hidden');
+            setTimeout(() => shopModal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeShopModal() {
+            shopModal.classList.add('opacity-0');
+            setTimeout(() => shopModal.classList.add('hidden'), 300);
+        }
+
+        function renderShopItems() {
+            shopItemsContainer.innerHTML = '';
+            themes.forEach(theme => {
+                const isUnlocked = unlockedThemes.includes(theme.id);
+                const isSelected = currentThemeId === theme.id;
+
+                const itemCard = document.createElement('div');
+                itemCard.className = `flex items-center justify-between p-3 rounded-2xl border-2 ${isSelected ? 'border-purple-500 bg-purple-50' : 'border-slate-200 bg-white'}`;
+                
+                let btnHtml = '';
+                if (isSelected) {
+                    btnHtml = `<span class="text-xs font-black text-purple-600 bg-purple-100 px-3 py-1.5 rounded-xl">使用中</span>`;
+                } else if (isUnlocked) {
+                    btnHtml = `<button onclick="selectTheme('${theme.id}')" class="px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white font-black text-xs rounded-xl shadow transition-all active:scale-95">套用主題</button>`;
+                } else {
+                    btnHtml = `<button onclick="buyTheme('${theme.id}', ${theme.cost})" class="px-3 py-1.5 bg-amber-400 hover:bg-amber-500 text-slate-900 font-black text-xs rounded-xl shadow transition-all active:scale-95">✨ ${theme.cost}點解鎖</button>`;
+                }
+
+                itemCard.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-2xl border border-slate-300 shadow-sm flex items-center justify-center text-lg" style="background-color: ${theme.lemonColor};">${theme.icon}</div>
+                        <div class="text-left">
+                            <div class="text-sm font-black text-slate-800">${theme.name}</div>
+                            <div class="text-[10px] text-slate-500">${isUnlocked ? '已擁有' : '需 ' + theme.cost + ' 積分'}</div>
+                        </div>
+                    </div>
+                    <div>${btnHtml}</div>
+                `;
+                shopItemsContainer.appendChild(itemCard);
+            });
+        }
+
+        function buyTheme(themeId, cost) {
+            if (totalPoints >= cost) {
+                totalPoints -= cost;
+                totalPointsEl.textContent = totalPoints;
+                localStorage.setItem('lemon_total_points', totalPoints);
+
+                unlockedThemes.push(themeId);
+                localStorage.setItem('lemon_unlocked_themes', JSON.stringify(unlockedThemes));
+
+                currentThemeId = themeId;
+                localStorage.setItem('lemon_current_theme', currentThemeId);
+                applyThemeStyles();
+
+                shopPointsDisplay.textContent = totalPoints + ' 點';
+                renderShopItems();
+            } else {
+                alertUserModal("積分不足！多玩幾局累積積分再回來解鎖吧！");
+            }
+        }
+
+        function selectTheme(themeId) {
+            currentThemeId = themeId;
+            localStorage.setItem('lemon_current_theme', currentThemeId);
+            applyThemeStyles();
+            renderShopItems();
+        }
+
+        function alertUserModal(msg) {
+            feedbackMessage.textContent = msg;
+            feedbackModal.classList.remove('hidden');
+            setTimeout(() => feedbackModal.classList.remove('opacity-0'), 10);
+        }
+
+        // Hint Modal Functions
+        function openHintModal() {
+            hintModal.classList.remove('hidden');
+            setTimeout(() => hintModal.classList.remove('opacity-0'), 10);
+            currentHintIdx = 0;
+            updateHintCarousel();
+        }
+        function closeHintModal() {
+            hintModal.classList.add('opacity-0');
+            setTimeout(() => hintModal.classList.add('hidden'), 300);
+            stopCarouselAutoplay();
+        }
+        function updateHintCarousel() {
+            hintCarouselImg.src = hintImages[currentHintIdx];
+            hintCurrentStepEl.textContent = currentHintIdx + 1;
+        }
+        function nextHintStep() {
+            currentHintIdx = (currentHintIdx + 1) % hintImages.length;
+            updateHintCarousel();
+        }
+        function prevHintStep() {
+            currentHintIdx = (currentHintIdx - 1 + hintImages.length) % hintImages.length;
+            updateHintCarousel();
+        }
+        function toggleCarouselAutoPlay() {
+            if (hintAutoplayTimer) {
+                stopCarouselAutoplay();
+            } else {
+                autoplayBtn.textContent = '⏸ 暫停動畫';
+                hintAutoplayTimer = setInterval(() => {
+                    nextHintStep();
+                }, 1000);
+            }
+        }
+        function stopCarouselAutoplay() {
+            if (hintAutoplayTimer) {
+                clearInterval(hintAutoplayTimer);
+                hintAutoplayTimer = null;
+                autoplayBtn.textContent = '▶ 自動播放動畫';
+            }
+        }
+
+        // Start Game Mode
+        function startGameMode(mode) {
+            gameMode = mode;
+            gameStarted = true;
+            gameOver = false;
+            startMenu.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => { startMenu.style.display = 'none'; }, 300);
+
+            if (gameMode === 'math') {
+                timerContainer.style.display = 'flex';
+                timerEl.textContent = '∞';
+                timerContainer.querySelector('span:first-child').textContent = '挑戰模式';
+                timerContainer.querySelector('span:last-child').textContent = '';
+                heartsContainer.style.display = 'flex';
+                mathOverlay.style.display = 'flex';
+                powerFooter.style.display = 'none';
+                currentModeNameEl.textContent = '答題前進模式';
+                hearts = 3;
+                mathStage = 1;
+                mathStageQuestionCount = 0;
+                totalQuestionCounter = 0;
+                updateHeartsDisplay();
+                nextMathQuestion();
+            } else if (gameMode === 'timed') {
+                timeLeft = 45;
+                timerContainer.style.display = 'flex';
+                timerContainer.querySelector('span:first-child').textContent = '剩餘時間';
+                timerContainer.querySelector('span:last-child').textContent = '秒';
+                heartsContainer.style.display = 'none';
+                mathOverlay.style.display = 'none';
+                powerFooter.style.display = 'flex';
+                currentModeNameEl.textContent = '限時挑戰';
+                startTimer();
+            } else {
+                timerContainer.style.display = 'none';
+                heartsContainer.style.display = 'none';
+                mathOverlay.style.display = 'none';
+                powerFooter.style.display = 'flex';
+                currentModeNameEl.textContent = '不限時暢玩';
+            }
+
+            initGameData();
+        }
+
+        function returnToMenu() {
+            gameOverModal.classList.add('hidden', 'opacity-0');
+            feedbackModal.classList.add('hidden', 'opacity-0');
+            mathOverlay.style.display = 'none';
+            startMenu.style.display = 'flex';
+            setTimeout(() => { startMenu.classList.remove('opacity-0', 'pointer-events-none'); }, 10);
+            gameStarted = false;
+            gameOver = false;
+            if (gameTimer) clearInterval(gameTimer);
+        }
+
+        function updateHeartsDisplay() {
+            let hStr = '';
+            for (let i = 0; i < 3; i++) {
+                hStr += (i < hearts) ? '❤️' : '🖤';
+            }
+            heartsDisplay.textContent = hStr;
+        }
+
+        function nextMathQuestion() {
+            totalQuestionCounter++;
+
+            if (totalQuestionCounter === 6) {
+                mathStage = 2;
+                mathStageQuestionCount = 0;
+            } else if (totalQuestionCounter === 11) {
+                mathStage = 3;
+                mathStageQuestionCount = 0;
+            } else if (totalQuestionCounter >= 15) {
+                mathStage = 4;
+            }
+
+            let qText = "";
+            let ans = "";
+            let steps = 1;
+            let attempts = 0;
+
+            do {
+                attempts++;
+                if (mathStage === 1) {
+                    stageBadge.textContent = "階段 1：基礎直觀左移";
+                    if (totalQuestionCounter === 1) {
+                        qText = "3 ÷ 10 = ?";
+                        ans = "0.3";
+                        steps = 1;
+                    } else {
+                        const baseNums = [3, 5, 24, 87, 420, 68, 91, 14, 55, 620];
+                        const divisors = [10, 100, 1000];
+                        const num = baseNums[Math.floor(Math.random() * baseNums.length)];
+                        const div = divisors[Math.floor(Math.random() * divisors.length)];
+                        let res = num / div;
+                        ans = res.toString();
+                        qText = `${num} ÷ ${div} = ?`;
+                        steps = div === 10 ? 1 : (div === 100 ? 2 : 3);
+                    }
+
+                } else if (mathStage === 2) {
+                    stageBadge.textContent = "階段 2：觀察位移步數推算除數";
+                    if (totalQuestionCounter === 6) {
+                        qText = "95 ÷ ? = 0.95";
+                        ans = "100";
+                        steps = 2;
+                    } else {
+                        const numPool = [45, 82, 360, 71, 530, 95, 120, 48];
+                        const divPool = [10, 100, 1000];
+                        const num = numPool[Math.floor(Math.random() * numPool.length)];
+                        const div = divPool[Math.floor(Math.random() * divPool.length)];
+                        const res = (num / div).toString();
+                        qText = `${num} ÷ ? = ${res}`;
+                        ans = div.toString();
+                        steps = div === 10 ? 1 : (div === 100 ? 2 : 3);
+                    }
+
+                } else if (mathStage === 3) {
+                    stageBadge.textContent = "階段 3：逆向思考還原被除數";
+                    if (totalQuestionCounter === 11) {
+                        qText = "? ÷ 10 = 0.07";
+                        ans = "0.7";
+                        steps = 1;
+                    } else {
+                        const divisors = [10, 100];
+                        const div = divisors[Math.floor(Math.random() * divisors.length)];
+                        const targetAnsOptions = [0.05, 0.12, 0.35, 0.8, 0.04, 0.25, 0.07];
+                        const targetAns = targetAnsOptions[Math.floor(Math.random() * targetAnsOptions.length)];
+                        const realNum = (targetAns * div).toFixed(2).replace(/\.?0+$/, '');
+                        qText = `? ÷ ${div} = ${targetAns}`;
+                        ans = realNum;
+                        steps = div === 10 ? 1 : 2;
+                    }
+
+                } else {
+                    stageBadge.textContent = "階段 4：綜合隨機挑戰";
+                    const randType = Math.floor(Math.random() * 3) + 1;
+                    if (randType === 1) {
+                        const baseNums = [3, 5, 24, 87, 420, 68, 91, 56, 35];
+                        const divisors = [10, 100, 1000];
+                        const num = baseNums[Math.floor(Math.random() * baseNums.length)];
+                        const div = divisors[Math.floor(Math.random() * divisors.length)];
+                        let res = num / div;
+                        ans = res.toString();
+                        qText = `${num} ÷ ${div} = ?`;
+                        steps = div === 10 ? 1 : (div === 100 ? 2 : 3);
+                    } else if (randType === 2) {
+                        const numPool = [45, 82, 360, 71, 530, 95, 5, 89 ,65];
+                        const divPool = [10, 100, 1000];
+                        const num = numPool[Math.floor(Math.random() * numPool.length)];
+                        const div = divPool[Math.floor(Math.random() * divPool.length)];
+                        const res = (num / div).toString();
+                        qText = `${num} ÷ ? = ${res}`;
+                        ans = div.toString();
+                        steps = div === 10 ? 1 : (div === 100 ? 2 : 3);
+                    } else {
+                        const divisors = [10, 100];
+                        const div = divisors[Math.floor(Math.random() * divisors.length)];
+                        const targetAnsOptions = [0.05, 0.12, 0.35, 0.8, 0.04, 0.25, 0.07, 0.06, 1.25 , 2.68];
+                        const targetAns = targetAnsOptions[Math.floor(Math.random() * targetAnsOptions.length)];
+                        const realNum = (targetAns * div).toFixed(2).replace(/\.?0+$/, '');
+                        qText = `? ÷ ${div} = ${targetAns}`;
+                        ans = realNum;
+                        steps = div === 10 ? 1 : 2;
+                    }
+                }
+            } while (qText === lastQuestionText && attempts < 5);
+
+            lastQuestionText = qText;
+            questionCounterEl.textContent = `第 ${totalQuestionCounter} 題`;
+            mathQuestionText.textContent = qText;
+            mathInput.value = "";
+            currentQuestion = { qText, ans, steps };
+            mathInput.focus();
+        }
+
+        function submitMathAnswer() {
+            if (!gameStarted || gameOver || gameMode !== 'math') return;
+            const userAns = mathInput.value.trim();
+            if (!userAns) return;
+
+            if (userAns === currentQuestion.ans) {
+                mathStageQuestionCount++;
+                score += currentQuestion.steps;
+                totalSteps += currentQuestion.steps;
+                combo += 1;
+                if (combo > maxCombo) maxCombo = combo;
+
+                scoreEl.textContent = score;
+                spawnFloatingText(`+${currentQuestion.steps} 答對囉！`, player.x, player.y - 40, '#eab308');
+                
+                executeMathJump(currentQuestion.steps);
+            } else {
+                hearts--;
+                updateHeartsDisplay();
+                combo = 0;
+                comboBadge.classList.add('hidden');
+
+                feedbackMessage.textContent = `哎呀！答錯囉。正確答案是 「${currentQuestion.ans}」。小數點移動方向要再檢查一下喔！`;
+                feedbackModal.classList.remove('hidden');
+                setTimeout(() => feedbackModal.classList.remove('opacity-0'), 10);
+
+                if (hearts <= 0) {
+                    setTimeout(() => endGame(), 500);
+                }
+            }
+        }
+
+        function closeFeedbackModal() {
+            feedbackModal.classList.add('opacity-0');
+            setTimeout(() => feedbackModal.classList.add('hidden'), 300);
+            if (gameMode === 'math' && hearts > 0) {
+                nextMathQuestion();
+            }
+        }
+
+        function executeMathJump(stepCount) {
+            player.isJumping = true;
+            let targetPlatform = platforms[stepCount] || platforms[platforms.length - 1];
+            const dx = targetPlatform.x - player.x;
+            const dy = targetPlatform.y - player.y;
+            const jumpDist = Math.hypot(dx, dy);
+            const angle = Math.atan2(dy, dx);
+            
+            const totalFrames = 35;
+            player.vx = (Math.cos(angle) * jumpDist) / totalFrames;
+            player.vy = (Math.sin(angle) * jumpDist) / totalFrames;
+            player.vz = 14;
+            player.gravity = 0.8;
+
+            setTimeout(() => {
+                for (let i = 0; i < stepCount; i++) {
+                    platforms.shift();
+                    const lastP = platforms[platforms.length - 1];
+                    platforms.push(generateNextPlatform(lastP.x, lastP.y));
+                }
+                spawnParticles(player.x, player.y, true);
+                if (gameMode === 'math') {
+                    nextMathQuestion();
+                }
+            }, 600);
+        }
+
+        function initGameData() {
+            score = 0;
+            combo = 0;
+            maxCombo = 0;
+            totalSteps = 0;
+            
+            scoreEl.textContent = score;
+            comboBadge.classList.add('hidden');
+            gameOverModal.classList.add('hidden', 'opacity-0');
+
+            platforms = [];
+            particles = [];
+            floatingTexts = [];
+
+            platforms.push({
+                x: 0, y: 0,
+                width: 80, depth: 80
+            });
+
+            let lastX = 0;
+            let lastY = 0;
+            for (let i = 0; i < 8; i++) {
+                const nextP = generateNextPlatform(lastX, lastY);
+                platforms.push(nextP);
+                lastX = nextP.x;
+                lastY = nextP.y;
+            }
+
+            player.x = platforms[0].x;
+            player.y = platforms[0].y;
+            player.z = 0;
+            player.vx = 0; player.vy = 0; player.vz = 0;
+            player.isJumping = false;
+            player.squish = 1;
+
+            camera.x = player.x;
+            camera.y = player.y;
+            camera.targetX = player.x;
+            camera.targetY = player.y;
+        }
+
+        function generateNextPlatform(prevX, prevY) {
+            const angle = -Math.PI / 4 + (Math.random() * 0.4 - 0.2);
+            const distance = 120 + Math.random() * 100;
+            
+            const x = prevX + Math.cos(angle) * distance;
+            const y = prevY + Math.sin(angle) * distance;
+
+            return { x: x, y: y, width: 80, depth: 80 };
+        }
+
+        function isoProject(worldX, worldY, worldZ) {
+            const screenCenterX = screenWidth / 2;
+            const screenCenterY = screenHeight / 2 + 30;
+
+            const rx = worldX - camera.x;
+            const ry = worldY - camera.y;
+
+            const isoX = screenCenterX + (rx - ry) * 0.866;
+            const isoY = screenCenterY + (rx + ry) * 0.5 - worldZ;
+
+            return { x: isoX, y: isoY };
+        }
+
+        function startTimer() {
+            if (gameTimer) clearInterval(gameTimer);
+            gameTimer = setInterval(() => {
+                if (!gameStarted || gameOver || gameMode !== 'timed') return;
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            gameOver = true;
+            if (gameTimer) clearInterval(gameTimer);
+
+            const earned = score;
+            totalPoints += earned;
+            totalPointsEl.textContent = totalPoints;
+            localStorage.setItem('lemon_total_points', totalPoints);
+
+            earnedPointsEl.textContent = earned;
+            finalScoreEl.textContent = score;
+            finalStepsEl.textContent = totalSteps + ' 格';
+            finalMaxComboEl.textContent = 'x' + maxCombo;
+
+            let rewardText = "🍋 獲得 " + earned + " 積分！";
+            rewardTitleEl.textContent = rewardText;
+
+            mathOverlay.style.display = 'none';
+            gameOverModal.classList.remove('hidden');
+            setTimeout(() => gameOverModal.classList.remove('opacity-0'), 10);
+        }
+
+        function handleTouchStart(e) {
+            if (!gameStarted || gameOver || player.isJumping || gameMode === 'math') return;
+            isCharging = true;
+            chargeTime = 0;
+        }
+
+        function handleTouchEnd(e) {
+            if (!isCharging || !gameStarted || gameOver || player.isJumping || gameMode === 'math') return;
+            isCharging = false;
+            
+            const power = Math.min(chargeTime, maxChargeTime) / maxChargeTime;
+            jump(power);
+            chargeTime = 0;
+            document.getElementById('power-bar').style.width = '0%';
+        }
+
+        // Mouse & Touch events
+        canvas.addEventListener('mousedown', handleTouchStart);
+        window.addEventListener('mouseup', handleTouchEnd);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleTouchStart(); }, { passive: false });
+        canvas.addEventListener('touchend', (e) => { e.preventDefault(); handleTouchEnd(); }, { passive: false });
+
+        // Keyboard support for PC (Spacebar to jump)
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                if (!gameStarted || gameOver || player.isJumping || gameMode === 'math') return;
+                if (!isCharging) {
+                    isCharging = true;
+                    chargeTime = 0;
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                if (!isCharging || !gameStarted || gameOver || player.isJumping || gameMode === 'math') return;
+                isCharging = false;
+                const power = Math.min(chargeTime, maxChargeTime) / maxChargeTime;
+                jump(power);
+                chargeTime = 0;
+                document.getElementById('power-bar').style.width = '0%';
+            }
+        });
+
+        function jump(power) {
+            player.isJumping = true;
+            const targetPlatform = platforms[1];
+            const dx = targetPlatform.x - player.x;
+            const dy = targetPlatform.y - player.y;
+            const jumpDist = 60 + power * 180;
+            const angle = Math.atan2(dy, dx);
+            
+            const totalFrames = 30;
+            player.vx = (Math.cos(angle) * jumpDist) / totalFrames;
+            player.vy = (Math.sin(angle) * jumpDist) / totalFrames;
+            player.vz = 12;
+            player.gravity = 0.8;
+        }
+
+        function spawnParticles(x, y, isPerfect) {
+            const t = getCurrentTheme();
+            const count = isPerfect ? 15 : 6;
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x, y: y, z: 10,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: (Math.random() - 0.5) * 4,
+                    vz: Math.random() * 5 + 2,
+                    color: isPerfect ? t.lemonColor : '#38bdf8',
+                    size: Math.random() * 6 + 4,
+                    life: 30
+                });
+            }
+        }
+
+        function spawnFloatingText(text, x, y, color) {
+            floatingTexts.push({ text: text, x: x, y: y, alpha: 1, color: color || '#ca8a04' });
+        }
+
+        function update() {
+            if (!gameStarted) return;
+
+            if (isCharging && gameMode !== 'math') {
+                chargeTime = Math.min(chargeTime + 1, maxChargeTime);
+                const percent = (chargeTime / maxChargeTime) * 100;
+                document.getElementById('power-bar').style.width = percent + '%';
+                player.squish = Math.max(0.6, 1 - (chargeTime / maxChargeTime) * 0.4);
+            } else {
+                player.squish = Math.min(1, player.squish + 0.1);
+            }
+
+            if (player.isJumping) {
+                player.x += player.vx;
+                player.y += player.vy;
+                player.z += player.vz;
+                player.vz -= player.gravity;
+
+                if (player.z <= 0) {
+                    player.z = 0;
+                    player.isJumping = false;
+
+                    if (gameMode !== 'math') {
+                        let landedPlatform = null;
+                        let isPerfectHit = false;
+
+                        for (let p of platforms) {
+                            const dist = Math.hypot(player.x - p.x, player.y - p.y);
+                            if (dist < p.width * 0.4) {
+                                landedPlatform = p;
+                                if (dist < 12) isPerfectHit = true;
+                                break;
+                            }
+                        }
+
+                        if (landedPlatform) {
+                            const targetIndex = platforms.indexOf(landedPlatform);
+                            if (targetIndex === 1) {
+                                score += 1;
+                                totalSteps += 1;
+                                combo += 1;
+                                if (combo > maxCombo) maxCombo = combo;
+                                if (isPerfectHit) { score += 2; spawnFloatingText("+3 完美命中!", player.x, player.y - 40, '#eab308'); }
+                                else { spawnFloatingText("+1", player.x, player.y - 40, '#ca8a04'); }
+                                spawnParticles(player.x, player.y, isPerfectHit);
+                                platforms.shift();
+                                const lastP = platforms[platforms.length - 1];
+                                platforms.push(generateNextPlatform(lastP.x, lastP.y));
+                            } else if (targetIndex > 1) {
+                                const bonus = targetIndex * 2;
+                                score += bonus;
+                                totalSteps += targetIndex;
+                                combo += targetIndex;
+                                if (combo > maxCombo) maxCombo = combo;
+                                spawnFloatingText(`+${bonus} 超遠跳躍!`, player.x, player.y - 40, '#0ea5e9');
+                                spawnParticles(player.x, player.y, true);
+                                for (let i = 0; i < targetIndex; i++) {
+                                    platforms.shift();
+                                    const lastP = platforms[platforms.length - 1];
+                                    platforms.push(generateNextPlatform(lastP.x, lastP.y));
+                                }
+                            }
+                            scoreEl.textContent = score;
+                        } else {
+                            spawnFloatingText("掉下去啦!", player.x, player.y - 40, '#ef4444');
+                            endGame();
+                        }
+                    }
+                }
+            }
+
+            camera.targetX = player.x;
+            camera.targetY = player.y;
+            camera.x += (camera.targetX - camera.x) * 0.1;
+            camera.y += (camera.targetY - camera.y) * 0.1;
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let pt = particles[i];
+                pt.x += pt.vx; pt.y += pt.vy; pt.z += pt.vz; pt.vz -= 0.4; pt.life--;
+                if (pt.life <= 0) particles.splice(i, 1);
+            }
+
+            for (let i = floatingTexts.length - 1; i >= 0; i--) {
+                let ft = floatingTexts[i];
+                ft.y -= 0.8; ft.alpha -= 0.02;
+                if (ft.alpha <= 0) floatingTexts.splice(i, 1);
+            }
+        }
+
+        function drawPlatform(p) {
+            const t = getCurrentTheme();
+            const hw = p.width / 2;
+            const hd = p.depth / 2;
+
+            const corners = [
+                isoProject(p.x - hw, p.y, 0),
+                isoProject(p.x, p.y - hd, 0),
+                isoProject(p.x + hw, p.y, 0),
+                isoProject(p.x, p.y + hd, 0)
+            ];
+
+            const center = isoProject(p.x, p.y, 0);
+
+            ctx.fillStyle = t.lemonColor;
+            ctx.beginPath();
+            ctx.moveTo(corners[0].x, corners[0].y);
+            ctx.lineTo(corners[1].x, corners[1].y);
+            ctx.lineTo(corners[2].x, corners[2].y);
+            ctx.lineTo(corners[3].x, corners[3].y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = t.borderColor;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.arc(center.x, center.y, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+        }
+
+        function drawPlayer() {
+            const t = getCurrentTheme();
+            const screen = isoProject(player.x, player.y, player.z);
+            const groundScreen = isoProject(player.x, player.y, 0);
+
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+            ctx.beginPath();
+            const shadowScale = Math.max(0.4, 1 - player.z / 150);
+            ctx.ellipse(groundScreen.x, groundScreen.y, 14 * shadowScale, 7 * shadowScale, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.save();
+            ctx.translate(screen.x, screen.y);
+            
+            const squishV = player.isJumping ? 1.2 : player.squish;
+            const squishH = player.isJumping ? 0.8 : (2 - player.squish);
+            ctx.scale(squishH, squishV);
+
+            ctx.fillStyle = t.lemonColor;
+            ctx.beginPath();
+            ctx.arc(0, -32, 11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = t.borderColor;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(3, -35, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.ellipse(0, -22, 12, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(0, -20);
+            ctx.lineTo(12, 0);
+            ctx.lineTo(-12, 0);
+            ctx.closePath();
+            ctx.fillStyle = t.lemonColor;
+            ctx.fill();
+            ctx.strokeStyle = t.borderColor;
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 15, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = t.borderColor;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, screenWidth, screenHeight);
+            platforms.forEach(p => drawPlatform(p));
+            drawPlayer();
+
+            particles.forEach(pt => {
+                const screen = isoProject(pt.x, pt.y, pt.z);
+                ctx.fillStyle = pt.color;
+                ctx.beginPath();
+                ctx.arc(screen.x, screen.y, pt.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            floatingTexts.forEach(ft => {
+                const screen = isoProject(ft.x, ft.y, 20);
+                ctx.save();
+                ctx.globalAlpha = ft.alpha;
+                ctx.font = '900 18px "Noto Sans TC", sans-serif';
+                ctx.fillStyle = ft.color;
+                ctx.shadowColor = 'rgba(255,255,255,0.9)';
+                ctx.shadowBlur = 6;
+                ctx.textAlign = 'center';
+                ctx.fillText(ft.text, screen.x, screen.y);
+                ctx.restore();
+            });
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        loop();
+    </script>
+</body>
+</html>
