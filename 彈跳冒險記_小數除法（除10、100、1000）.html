@@ -62,14 +62,14 @@
             <span id="current-mode-name" class="text-[11px] sm:text-sm font-black text-amber-700 bg-yellow-200/80 px-2 py-0.5 rounded-full">限時挑戰</span>
         </div>
         <div class="flex flex-col items-center">
-            <span class="text-[10px] sm:text-xs text-amber-700 font-bold tracking-wider">當前得分</span>
+            <span id="score-label" class="text-[10px] sm:text-xs text-amber-700 font-bold tracking-wider">當前得分</span>
             <div class="flex items-center space-x-1">
                 <span id="score" class="text-lg sm:text-2xl font-black text-slate-900">0</span>
                 <span id="combo-badge" class="hidden text-[9px] bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 px-1 py-0.5 rounded-full font-black animate-pulse">COMBO</span>
             </div>
         </div>
-        <div class="flex flex-col items-end">
-            <span class="text-[10px] sm:text-xs text-amber-700 font-bold tracking-wider">總積分</span>
+        <div id="points-container" class="flex flex-col items-end">
+            <span id="points-label" class="text-[10px] sm:text-xs text-amber-700 font-bold tracking-wider">總積分</span>
             <span id="total-points" class="text-base sm:text-xl font-black text-amber-600">0</span>
         </div>
     </header>
@@ -109,7 +109,7 @@
                 <div class="w-full space-y-2 mb-3">
                     <button onclick="startGameMode('math')" class="w-full py-2.5 sm:py-3 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-slate-900 font-black text-sm rounded-2xl shadow-md transition-all transform active:scale-95 flex items-center justify-center space-x-2 border border-yellow-500">
                         <span>📝</span>
-                        <span>答題前進模式 (3心心系統)</span>
+                        <span>積分計算模式（答題前進）</span>
                     </button>
                     <button onclick="startGameMode('timed')" class="w-full py-2.5 sm:py-3 bg-yellow-200 hover:bg-yellow-300 text-slate-900 font-black text-sm rounded-2xl shadow-md transition-all transform active:scale-95 flex items-center justify-center space-x-2 border border-yellow-300">
                         <span>⏱</span>
@@ -243,7 +243,7 @@
 
             <div class="bg-yellow-50/70 border border-yellow-200 rounded-2xl p-3 w-full mb-4 space-y-2 text-xs sm:text-sm">
                 <div class="flex justify-between items-center">
-                    <span class="text-slate-600">本局得分 (積分+<span id="earned-points">0</span>)</span>
+                    <span id="gameover-score-label" class="text-slate-600">本局得分 (積分+<span id="earned-points">0</span>)</span>
                     <span id="final-score" class="text-xl font-black text-amber-600">0</span>
                 </div>
                 <div class="flex justify-between items-center">
@@ -362,8 +362,8 @@
         function startBGM() {
             if (bgmInterval) return;
             
-            // Fixed, new cute and relaxing melody
-            const melody = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63, 293.66, 349.23, 440.00, 523.25, 440.00, 349.23];
+            // New cute, light and relaxing melody
+            const melody = [392.00, 440.00, 523.25, 587.33, 523.25, 440.00, 392.00, 329.63, 392.00, 440.00, 493.88, 523.25];
             let noteIdx = 0;
 
             bgmInterval = setInterval(() => {
@@ -372,17 +372,17 @@
                     const now = audioCtx.currentTime;
                     const osc = audioCtx.createOscillator();
                     const gain = audioCtx.createGain();
-                    osc.type = 'triangle';
+                    osc.type = 'sine';
                     osc.frequency.setValueAtTime(melody[noteIdx % melody.length], now);
-                    gain.gain.setValueAtTime(0.035, now);
-                    gain.gain.linearRampToValueAtTime(0.001, now + 0.28);
+                    gain.gain.setValueAtTime(0.03, now);
+                    gain.gain.linearRampToValueAtTime(0.001, now + 0.32);
                     osc.connect(gain);
                     gain.connect(audioCtx.destination);
                     osc.start(now);
-                    osc.stop(now + 0.28);
+                    osc.stop(now + 0.32);
                     noteIdx++;
                 } catch (e) {}
-            }, 300);
+            }, 320);
         }
 
         function stopBGM() {
@@ -402,7 +402,9 @@
         const heartsDisplay = document.getElementById('hearts-display');
         const currentModeNameEl = document.getElementById('current-mode-name');
         const scoreEl = document.getElementById('score');
+        const scoreLabel = document.getElementById('score-label');
         const totalPointsEl = document.getElementById('total-points');
+        const pointsLabel = document.getElementById('points-label');
         const shopPointsDisplay = document.getElementById('shop-points-display');
         const comboBadge = document.getElementById('combo-badge');
         const powerFooter = document.getElementById('power-footer');
@@ -438,6 +440,9 @@
         let gameTimer = null;
         let score = 0;
         let totalPoints = parseInt(localStorage.getItem('lemon_total_points') || '0');
+        let timedHighScore = parseInt(localStorage.getItem('lemon_timed_highscore') || '0');
+        let endlessHighScore = parseInt(localStorage.getItem('lemon_endless_highscore') || '0');
+
         let combo = 0;
         let maxCombo = 0;
         let totalSteps = 0;
@@ -671,6 +676,10 @@
                 mathOverlay.style.display = 'flex';
                 powerFooter.style.display = 'none';
                 currentModeNameEl.textContent = '答題前進模式';
+                scoreLabel.textContent = '當前得分';
+                pointsLabel.textContent = '總積分';
+                totalPointsEl.textContent = totalPoints;
+                document.getElementById('points-container').style.display = 'flex';
                 hearts = 3;
                 mathStage = 1;
                 mathStageQuestionCount = 0;
@@ -686,6 +695,10 @@
                 mathOverlay.style.display = 'none';
                 powerFooter.style.display = 'flex';
                 currentModeNameEl.textContent = '限時挑戰';
+                scoreLabel.textContent = '當前得分';
+                pointsLabel.textContent = '歷史最高';
+                totalPointsEl.textContent = timedHighScore;
+                document.getElementById('points-container').style.display = 'flex';
                 startTimer();
             } else {
                 timerContainer.style.display = 'none';
@@ -693,6 +706,10 @@
                 mathOverlay.style.display = 'none';
                 powerFooter.style.display = 'flex';
                 currentModeNameEl.textContent = '不限時暢玩';
+                scoreLabel.textContent = '當前得分';
+                pointsLabel.textContent = '歷史最高';
+                totalPointsEl.textContent = endlessHighScore;
+                document.getElementById('points-container').style.display = 'flex';
             }
 
             initGameData();
@@ -984,18 +1001,39 @@
             gameOver = true;
             if (gameTimer) clearInterval(gameTimer);
 
-            const earned = score;
-            totalPoints += earned;
-            totalPointsEl.textContent = totalPoints;
-            localStorage.setItem('lemon_total_points', totalPoints);
+            if (gameMode === 'math') {
+                const earned = score;
+                totalPoints += earned;
+                totalPointsEl.textContent = totalPoints;
+                localStorage.setItem('lemon_total_points', totalPoints);
 
-            earnedPointsEl.textContent = earned;
+                earnedPointsEl.textContent = earned;
+                document.getElementById('gameover-score-label').innerHTML = `本局得分 (積分+<span id="earned-points">${earned}</span>)`;
+                rewardTitleEl.textContent = "🍋 獲得 " + earned + " 積分！";
+            } else if (gameMode === 'timed') {
+                if (score > timedHighScore) {
+                    timedHighScore = score;
+                    localStorage.setItem('lemon_timed_highscore', timedHighScore);
+                    rewardTitleEl.textContent = "🏆 刷新限時挑戰最高紀錄！";
+                } else {
+                    rewardTitleEl.textContent = "⏱ 限時挑戰結算";
+                }
+                document.getElementById('gameover-score-label').textContent = `本局得分 (最高: ${timedHighScore})`;
+            } else {
+                if (score > endlessHighScore) {
+                    endGraphHighScore = score;
+                    endlessHighScore = score;
+                    localStorage.setItem('lemon_endless_highscore', endlessHighScore);
+                    rewardTitleEl.textContent = "🏆 刷新暢玩模式最高紀錄！";
+                } else {
+                    rewardTitleEl.textContent = "✨ 不限時暢玩結算";
+                }
+                document.getElementById('gameover-score-label').textContent = `本局得分 (最高: ${endlessHighScore})`;
+            }
+
             finalScoreEl.textContent = score;
             finalStepsEl.textContent = totalSteps + ' 格';
             finalMaxComboEl.textContent = 'x' + maxCombo;
-
-            let rewardText = "🍋 獲得 " + earned + " 積分！";
-            rewardTitleEl.textContent = rewardText;
 
             mathOverlay.style.display = 'none';
             gameOverModal.classList.remove('hidden');
