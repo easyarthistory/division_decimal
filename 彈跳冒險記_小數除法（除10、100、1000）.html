@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>檸檬黃跳一跳 - 小數除法冒險</title>
+    <title>檸檬黃冒險記 - 小數除法冒險</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -54,7 +54,7 @@
         </div>
         <div id="hearts-container" class="hidden flex flex-col items-center">
             <span class="text-[10px] sm:text-xs text-rose-600 font-bold tracking-wider">剩餘生命</span>
-            <div id="hearts-display" class="flex space-x-0.5 text-sm sm:text-lg">❤️️❤❤️</div>
+            <div id="hearts-display" class="flex space-x-0.5 text-sm sm:text-lg">❤❤❤️</div>
         </div>
         <div id="mode-display" class="flex flex-col items-center">
             <span class="text-[10px] sm:text-xs text-yellow-800 font-bold tracking-wider">遊戲模式</span>
@@ -92,7 +92,7 @@
         <div id="start-menu" class="absolute inset-0 flex flex-col justify-center items-center bg-yellow-100/40 backdrop-blur-xs transition-opacity duration-300 p-4 z-30 overflow-y-auto">
             <div id="start-menu-card" class="bg-white/95 backdrop-blur-md border-2 border-yellow-300 p-4 sm:p-7 rounded-3xl text-center shadow-2xl pop-in max-w-xs sm:max-w-sm w-full flex flex-col items-center my-auto">
                 <div id="main-theme-icon" class="text-4xl sm:text-5xl mb-1 animate-bounce">🍋</div>
-                <h2 id="main-title-text" class="text-xl sm:text-2xl font-black text-amber-600 mb-1">檸檬黃跳一跳</h2>
+                <h2 id="main-title-text" class="text-xl sm:text-2xl font-black text-amber-600 mb-1">檸檬黃冒險記</h2>
                 <p class="text-xs sm:text-sm text-slate-600 mb-3">掌握小數除法：除以 10、100、1000 的左移奧祕！</p>
                 
                 <div class="w-full space-y-2 mb-3">
@@ -117,26 +117,26 @@
             </div>
         </div>
 
-        <!-- Math Question & Answer Overlay (Active in Math Mode) -->
-        <div id="math-overlay" class="absolute bottom-2 left-2 right-2 bg-white/95 backdrop-blur-md border-2 border-amber-300 rounded-2xl p-2 sm:p-3 shadow-xl z-20 hidden flex flex-col items-center pop-in max-w-lg mx-auto">
+        <!-- Math Question & Answer Overlay (Optimized for Mobile) -->
+        <div id="math-overlay" class="absolute bottom-2 left-2 right-2 bg-white/95 backdrop-blur-md border-2 border-amber-300 rounded-2xl p-2.5 sm:p-4 shadow-2xl z-20 hidden flex flex-col items-center pop-in max-w-lg mx-auto">
             <div class="flex justify-between w-full items-center mb-1">
                 <div class="flex items-center space-x-2">
-                    <span id="stage-badge" class="text-[9px] sm:text-xs font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-200">階段 1：基礎直觀左移</span>
+                    <span id="stage-badge" class="text-[10px] sm:text-xs font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-200">階段 1：基礎直觀左移</span>
                 </div>
-                <div class="flex items-center space-x-1">
-                    <button onclick="endGame()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-black text-[9px] sm:text-xs px-2 py-0.5 rounded-lg border border-amber-300 flex items-center space-x-1 active:scale-95 transition-all shadow-sm">
+                <div class="flex items-center space-x-1.5">
+                    <button onclick="endGame()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-black text-[10px] sm:text-xs px-2 py-1 rounded-lg border border-amber-300 flex items-center space-x-1 active:scale-95 transition-all shadow-sm">
                         <span>🏁</span>
-                        <span>結束並結算</span>
+                        <span>結束結算</span>
                     </button>
-                    <span id="question-counter" class="text-[9px] sm:text-xs text-slate-500 font-bold ml-1">第 1 题</span>
+                    <span id="question-counter" class="text-[10px] sm:text-xs text-slate-500 font-bold ml-1">第 1 题</span>
                 </div>
             </div>
-            <div id="math-question-text" class="text-sm sm:text-xl font-black text-amber-700 mb-1 tracking-wide text-center">
+            <div id="math-question-text" class="text-sm sm:text-xl font-black text-amber-700 mb-1.5 tracking-wide text-center">
                 3 ÷ 10 = ?
             </div>
-            <div class="flex space-x-2 w-full">
-                <input type="text" id="math-input" placeholder="請輸入答案 (例如 0.3)" onkeydown="if(event.key === 'Enter'){ submitMathAnswer(); }" class="flex-1 bg-yellow-50 border-2 border-yellow-300 rounded-xl px-3 py-1.5 text-center text-sm sm:text-base font-black text-slate-800 focus:outline-none focus:border-amber-500">
-                <button onclick="submitMathAnswer()" class="bg-amber-400 hover:bg-amber-500 text-slate-900 font-black px-4 sm:px-5 py-1.5 rounded-xl shadow transition-all active:scale-95 text-xs sm:text-sm shrink-0">送出</button>
+            <div class="flex items-center space-x-2 w-full">
+                <input type="text" id="math-input" placeholder="請輸入答案 (例如 0.3)" onkeydown="if(event.key === 'Enter'){ submitMathAnswer(); }" class="w-0 flex-1 min-w-0 bg-yellow-50 border-2 border-yellow-300 rounded-xl px-2.5 py-2 sm:py-2.5 text-center text-sm sm:text-base font-black text-slate-800 focus:outline-none focus:border-amber-500 shadow-inner">
+                <button onclick="submitMathAnswer()" class="shrink-0 bg-amber-400 hover:bg-amber-500 text-slate-900 font-black px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl shadow-md transition-all active:scale-95 text-xs sm:text-sm border border-amber-500 whitespace-nowrap">送出 🚀</button>
             </div>
         </div>
     </main>
@@ -157,7 +157,7 @@
             <div class="flex justify-between items-center w-full mb-2">
                 <h3 class="text-sm sm:text-base font-black text-amber-600 flex items-center space-x-1">
                     <span>💡</span>
-                    <span>小數除法教學動畫 (第 1.22 課)</span>
+                    <span>小數除法教學動畫</span>
                 </h3>
                 <button onclick="closeHintModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg px-2">✕</button>
             </div>
@@ -304,16 +304,16 @@
 
         // Theme Shop Data & State
         const themes = [
-            { id: 'lemon', name: '陽光檸檬黃', cost: 0, icon: '🍋', title: '檸檬黃跳一跳', bgColor: '#fefce8', gridLine: '#fef08a', borderColor: '#facc15', lemonColor: '#fde047', textColor: 'text-amber-600', borderColorClass: 'border-yellow-300' },
-            { id: 'apple', name: '熱情紅蘋果', cost: 20, icon: '🍎', title: '紅蘋果跳一跳', bgColor: '#fff1f2', gridLine: '#ffe4e6', borderColor: '#f43f5e', lemonColor: '#fb7185', textColor: 'text-rose-600', borderColorClass: 'border-rose-300' },
-            { id: 'orange', name: '活力鮮香橙', cost: 35, icon: '🍊', title: '鮮香橙跳一跳', bgColor: '#fff7ed', gridLine: '#ffedd5', borderColor: '#f97316', lemonColor: '#fb923c', textColor: 'text-orange-600', borderColorClass: 'border-orange-300' },
-            { id: 'mint', name: '清新薄荷綠', cost: 50, icon: '🍈', title: '薄荷綠跳一跳', bgColor: '#f0fdf4', gridLine: '#dcfce7', borderColor: '#4ade80', lemonColor: '#86efac', textColor: 'text-emerald-600', borderColorClass: 'border-emerald-300' },
-            { id: 'sky', name: '蔚藍海洋風', cost: 65, icon: '🫐', title: '海洋風跳一跳', bgColor: '#f0f9ff', gridLine: '#e0f2fe', borderColor: '#38bdf8', lemonColor: '#7dd3fc', textColor: 'text-sky-600', borderColorClass: 'border-sky-300' },
-            { id: 'grape', name: '夢幻葡萄紫', cost: 80, icon: '🍇', title: '葡萄紫跳一跳', bgColor: '#faf5ff', gridLine: '#f3e8ff', borderColor: '#c084fc', lemonColor: '#d8b4fe', textColor: 'text-purple-600', borderColorClass: 'border-purple-300' },
-            { id: 'peach', name: '甜美蜜桃粉', cost: 100, icon: '🍑', title: '蜜桃粉跳一跳', bgColor: '#fff1f2', gridLine: '#ffe4e6', borderColor: '#fb7185', lemonColor: '#fda4af', textColor: 'text-rose-500', borderColorClass: 'border-rose-200' },
-            { id: 'matcha', name: '日式抹茶綠', cost: 130, icon: '🍵', title: '抹茶綠跳一跳', bgColor: '#f7fee7', gridLine: '#ecfccb', borderColor: '#84cc16', lemonColor: '#bef264', textColor: 'text-lime-600', borderColorClass: 'border-lime-300' },
-            { id: 'cyber', name: '電競霓虹黑', cost: 160, icon: '⚡', title: '霓虹黑跳一跳', bgColor: '#0f172a', gridLine: '#1e293b', borderColor: '#38bdf8', lemonColor: '#38bdf8', textColor: 'text-cyan-400', borderColorClass: 'border-cyan-500' },
-            { id: 'gold', name: '尊榮黃金鑽', cost: 220, icon: '👑', title: '黃金鑽跳一跳', bgColor: '#fefce8', gridLine: '#fef08a', borderColor: '#eab308', lemonColor: '#facc15', textColor: 'text-yellow-600', borderColorClass: 'border-yellow-400' }
+            { id: 'lemon', name: '陽光檸檬黃', cost: 0, icon: '🍋', title: '檸檬黃冒險記', bgColor: '#fefce8', gridLine: '#fef08a', borderColor: '#facc15', lemonColor: '#fde047', textColor: 'text-amber-600', borderColorClass: 'border-yellow-300' },
+            { id: 'apple', name: '熱情紅蘋果', cost: 20, icon: '🍎', title: '紅蘋果冒險記', bgColor: '#fff1f2', gridLine: '#ffe4e6', borderColor: '#f43f5e', lemonColor: '#fb7185', textColor: 'text-rose-600', borderColorClass: 'border-rose-300' },
+            { id: 'orange', name: '活力鮮香橙', cost: 35, icon: '🍊', title: '鮮香橙冒險記', bgColor: '#fff7ed', gridLine: '#ffedd5', borderColor: '#f97316', lemonColor: '#fb923c', textColor: 'text-orange-600', borderColorClass: 'border-orange-300' },
+            { id: 'mint', name: '清新薄荷綠', cost: 50, icon: '🍈', title: '薄荷綠冒險記', bgColor: '#f0fdf4', gridLine: '#dcfce7', borderColor: '#4ade80', lemonColor: '#86efac', textColor: 'text-emerald-600', borderColorClass: 'border-emerald-300' },
+            { id: 'sky', name: '蔚藍海洋風', cost: 65, icon: '🫐', title: '海洋風冒險記', bgColor: '#f0f9ff', gridLine: '#e0f2fe', borderColor: '#38bdf8', lemonColor: '#7dd3fc', textColor: 'text-sky-600', borderColorClass: 'border-sky-300' },
+            { id: 'grape', name: '夢幻葡萄紫', cost: 80, icon: '🍇', title: '葡萄紫冒險記', bgColor: '#faf5ff', gridLine: '#f3e8ff', borderColor: '#c084fc', lemonColor: '#d8b4fe', textColor: 'text-purple-600', borderColorClass: 'border-purple-300' },
+            { id: 'peach', name: '甜美蜜桃粉', cost: 100, icon: '🍑', title: '蜜桃粉冒險記', bgColor: '#fff1f2', gridLine: '#ffe4e6', borderColor: '#fb7185', lemonColor: '#fda4af', textColor: 'text-rose-500', borderColorClass: 'border-rose-200' },
+            { id: 'matcha', name: '日式抹茶綠', cost: 130, icon: '🍵', title: '抹茶綠冒險記', bgColor: '#f7fee7', gridLine: '#ecfccb', borderColor: '#84cc16', lemonColor: '#bef264', textColor: 'text-lime-600', borderColorClass: 'border-lime-300' },
+            { id: 'cyber', name: '電競霓虹黑', cost: 160, icon: '⚡', title: '霓虹黑冒險記', bgColor: '#0f172a', gridLine: '#1e293b', borderColor: '#38bdf8', lemonColor: '#38bdf8', textColor: 'text-cyan-400', borderColorClass: 'border-cyan-500' },
+            { id: 'gold', name: '尊榮黃金鑽', cost: 220, icon: '👑', title: '黃金鑽冒險記', bgColor: '#fefce8', gridLine: '#fef08a', borderColor: '#eab308', lemonColor: '#facc15', textColor: 'text-yellow-600', borderColorClass: 'border-yellow-400' }
         ];
         let unlockedThemes = JSON.parse(localStorage.getItem('lemon_unlocked_themes') || '["lemon"]');
         let currentThemeId = localStorage.getItem('lemon_current_theme') || 'lemon';
@@ -550,7 +550,7 @@
         function updateHeartsDisplay() {
             let hStr = '';
             for (let i = 0; i < 3; i++) {
-                hStr += (i < hearts) ? '❤️️' : '🖤';
+                hStr += (i < hearts) ? '❤' : '🖤';
             }
             heartsDisplay.textContent = hStr;
         }
@@ -666,7 +666,6 @@
             mathInput.value = "";
             currentQuestion = { qText, ans, steps };
             
-            // Blur input to prevent auto keyboard zoom jump issues on mobile after multiple rounds
             mathInput.blur();
         }
 
@@ -675,7 +674,6 @@
             const userAns = mathInput.value.trim();
             if (!userAns) return;
 
-            // Hide mobile keyboard
             mathInput.blur();
 
             if (userAns === currentQuestion.ans) {
