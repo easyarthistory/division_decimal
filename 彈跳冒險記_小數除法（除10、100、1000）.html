@@ -15,7 +15,6 @@
             background-color: var(--bg-color, #fefce8);
             transition: background-color 0.3s ease;
         }
-        /* Fix input zoom on mobile by using 16px font size */
         input[type="text"] {
             font-size: 16px !important;
         }
@@ -54,7 +53,9 @@
         </div>
         <div id="hearts-container" class="hidden flex flex-col items-center">
             <span class="text-[10px] sm:text-xs text-rose-600 font-bold tracking-wider">剩餘生命</span>
-            <div id="hearts-display" class="flex space-x-0.5 text-sm sm:text-lg">❤❤❤️</div>
+            <div id="hearts-display" class="flex space-x-0.5 text-xs sm:text-base font-black">
+                <span style="color: #ef4444;">❤</span><span style="color: #ef4444;">❤</span><span style="color: #ef4444;">❤</span>
+            </div>
         </div>
         <div id="mode-display" class="flex flex-col items-center">
             <span class="text-[10px] sm:text-xs text-yellow-800 font-bold tracking-wider">遊戲模式</span>
@@ -75,12 +76,22 @@
 
     <main class="relative flex-1 w-full max-w-md sm:max-w-xl md:max-w-2xl my-2 flex justify-center items-center overflow-hidden rounded-3xl grid-background min-h-0">
         
-        <!-- Decorative doodles -->
         <div class="absolute top-2 left-3 text-sky-600 font-bold text-lg select-none pointer-events-none opacity-85">~ ~ ~</div>
         <div class="absolute top-2 right-3 text-sky-700 font-bold text-lg select-none pointer-events-none opacity-85">🌀 🎨</div>
         <div class="absolute bottom-2 left-3 text-amber-600 text-xs font-bold select-none pointer-events-none">✨ 小數除法冒險</div>
 
-        <!-- Hint Button Top-Right -->
+        <!-- Separate BGM & SFX Toggle Buttons -->
+        <div class="absolute top-3 left-3 flex flex-col space-y-1 z-20">
+            <button onclick="toggleBGM()" id="bgm-toggle-btn" class="bg-yellow-300 hover:bg-yellow-400 text-slate-900 font-black text-[11px] sm:text-xs px-2.5 py-1 rounded-full shadow-md border border-yellow-400 flex items-center space-x-1 transition-all active:scale-95 whitespace-nowrap">
+                <span>🎵</span>
+                <span id="bgm-btn-text">背景音樂: 開</span>
+            </button>
+            <button onclick="toggleSFX()" id="sfx-toggle-btn" class="bg-yellow-300 hover:bg-yellow-400 text-slate-900 font-black text-[11px] sm:text-xs px-2.5 py-1 rounded-full shadow-md border border-yellow-400 flex items-center space-x-1 transition-all active:scale-95 whitespace-nowrap">
+                <span>🔊</span>
+                <span id="sfx-btn-text">遊戲音效: 開</span>
+            </button>
+        </div>
+
         <button onclick="openHintModal()" class="absolute top-3 right-3 bg-yellow-300 hover:bg-yellow-400 text-slate-900 font-black text-xs sm:text-sm px-3 py-1.5 rounded-full shadow-md border border-yellow-400 z-20 flex items-center space-x-1 transition-all active:scale-95">
             <span>💡</span>
             <span>教學提示</span>
@@ -98,7 +109,7 @@
                 <div class="w-full space-y-2 mb-3">
                     <button onclick="startGameMode('math')" class="w-full py-2.5 sm:py-3 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-slate-900 font-black text-sm rounded-2xl shadow-md transition-all transform active:scale-95 flex items-center justify-center space-x-2 border border-yellow-500">
                         <span>📝</span>
-                        <span>答題前進模式</span>
+                        <span>答題前進模式 (3心心系統)</span>
                     </button>
                     <button onclick="startGameMode('timed')" class="w-full py-2.5 sm:py-3 bg-yellow-200 hover:bg-yellow-300 text-slate-900 font-black text-sm rounded-2xl shadow-md transition-all transform active:scale-95 flex items-center justify-center space-x-2 border border-yellow-300">
                         <span>⏱</span>
@@ -117,7 +128,7 @@
             </div>
         </div>
 
-        <!-- Math Question & Answer Overlay (Optimized for Mobile) -->
+        <!-- Math Question & Answer Overlay with Adaptive Side-by-Side Flexbox -->
         <div id="math-overlay" class="absolute bottom-2 left-2 right-2 bg-white/95 backdrop-blur-md border-2 border-amber-300 rounded-2xl p-2.5 sm:p-4 shadow-2xl z-20 hidden flex flex-col items-center pop-in max-w-lg mx-auto">
             <div class="flex justify-between w-full items-center mb-1">
                 <div class="flex items-center space-x-2">
@@ -135,8 +146,8 @@
                 3 ÷ 10 = ?
             </div>
             <div class="flex items-center space-x-2 w-full">
-                <input type="text" id="math-input" placeholder="請輸入答案 (例如 0.3)" onkeydown="if(event.key === 'Enter'){ submitMathAnswer(); }" class="w-0 flex-1 min-w-0 bg-yellow-50 border-2 border-yellow-300 rounded-xl px-2.5 py-2 sm:py-2.5 text-center text-sm sm:text-base font-black text-slate-800 focus:outline-none focus:border-amber-500 shadow-inner">
-                <button onclick="submitMathAnswer()" class="shrink-0 bg-amber-400 hover:bg-amber-500 text-slate-900 font-black px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl shadow-md transition-all active:scale-95 text-xs sm:text-sm border border-amber-500 whitespace-nowrap">送出 🚀</button>
+                <input type="text" id="math-input" placeholder="請輸入答案 (例如 0.3)" onkeydown="if(event.key === 'Enter'){ submitMathAnswer(); }" class="flex-1 min-w-0 bg-yellow-50 border-2 border-yellow-300 rounded-xl px-2.5 py-2 sm:py-2.5 text-center text-sm sm:text-base font-black text-slate-800 focus:outline-none focus:border-amber-500 shadow-inner">
+                <button onclick="submitMathAnswer()" class="shrink-0 bg-amber-400 hover:bg-amber-500 text-slate-900 font-black px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl shadow-md transition-all active:scale-95 text-xs sm:text-sm border border-amber-500 whitespace-nowrap">送出 🚀</button>
             </div>
         </div>
     </main>
@@ -152,6 +163,7 @@
         — Ms. Hea Limited｜小數除法冒險 (全平台支援)｜網頁由Google Gemini製作 —
     </footer>
 
+    <!-- Hint Modal -->
     <div id="hint-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 hidden opacity-0 transition-opacity duration-300 p-3">
         <div class="bg-white border-2 border-yellow-300 rounded-3xl p-4 sm:p-6 w-full max-w-md sm:max-w-lg text-center shadow-2xl pop-in flex flex-col items-center text-slate-800 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center w-full mb-2">
@@ -184,6 +196,7 @@
         </div>
     </div>
 
+    <!-- Shop Modal -->
     <div id="shop-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 hidden opacity-0 transition-opacity duration-300 p-3">
         <div class="bg-white border-2 border-purple-300 rounded-3xl p-4 sm:p-6 w-full max-w-md sm:max-w-lg text-center shadow-2xl pop-in flex flex-col items-center text-slate-800 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center w-full mb-3">
@@ -199,9 +212,7 @@
                 <span id="shop-points-display" class="text-lg sm:text-xl font-black text-purple-700">0 點</span>
             </div>
 
-            <div id="shop-items-container" class="w-full space-y-2.5 mb-3">
-                <!-- Dynamically rendered theme cards -->
-            </div>
+            <div id="shop-items-container" class="w-full space-y-2.5 mb-3"></div>
 
             <button onclick="closeShopModal()" class="w-full py-2.5 bg-purple-200 hover:bg-purple-300 text-purple-900 font-black rounded-xl text-xs sm:text-sm shadow-sm">
                 返回主選單
@@ -209,6 +220,7 @@
         </div>
     </div>
 
+    <!-- Feedback & Warning Modal -->
     <div id="feedback-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 hidden opacity-0 transition-opacity duration-300 p-4">
         <div class="bg-white border-2 border-rose-300 rounded-3xl p-5 w-full max-w-sm text-center shadow-2xl pop-in flex flex-col items-center text-slate-800">
             <div id="feedback-icon" class="text-3xl mb-1.5 animate-bounce">❌</div>
@@ -222,6 +234,7 @@
         </div>
     </div>
 
+    <!-- Game Over Modal -->
     <div id="gameover-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 hidden opacity-0 transition-opacity duration-300 p-4">
         <div class="bg-white border-2 border-yellow-300 rounded-3xl p-5 w-full max-w-sm text-center shadow-2xl pop-in flex flex-col items-center text-slate-800">
             <div class="text-4xl mb-1.5 animate-bounce">🏆</div>
@@ -251,10 +264,138 @@
     </div>
 
     <script>
+        // --- Web Audio API & BGM System ---
+        let audioCtx = null;
+        let isBGMEnabled = true;
+        let isSFXEnabled = true;
+        let bgmInterval = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function toggleBGM() {
+            initAudio();
+            isBGMEnabled = !isBGMEnabled;
+            const btnText = document.getElementById('bgm-btn-text');
+            if (isBGMEnabled) {
+                btnText.textContent = '背景音樂: 開';
+                startBGM();
+            } else {
+                btnText.textContent = '背景音樂: 關';
+                stopBGM();
+            }
+        }
+
+        function toggleSFX() {
+            initAudio();
+            isSFXEnabled = !isSFXEnabled;
+            const btnText = document.getElementById('sfx-btn-text');
+            if (isSFXEnabled) {
+                btnText.textContent = '遊戲音效: 開';
+            } else {
+                btnText.textContent = '遊戲音效: 關';
+            }
+        }
+
+        function playSound(type) {
+            if (!isSFXEnabled || !audioCtx) return;
+            try {
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'jump') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(554.37, now + 0.08);
+                    osc.frequency.setValueAtTime(659.25, now + 0.16);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.setValueAtTime(160, now + 0.15);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'heart_loss') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(350, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.4);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'fall') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(500, now);
+                    osc.frequency.exponentialRampToValueAtTime(80, now + 0.6);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.6);
+                    osc.start(now);
+                    osc.stop(now + 0.6);
+                }
+            } catch (e) {
+                console.error("Audio error:", e);
+            }
+        }
+
+        function startBGM() {
+            if (bgmInterval) return;
+            
+            // Fixed, new cute and relaxing melody
+            const melody = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63, 293.66, 349.23, 440.00, 523.25, 440.00, 349.23];
+            let noteIdx = 0;
+
+            bgmInterval = setInterval(() => {
+                if (!isBGMEnabled || !audioCtx) return;
+                try {
+                    const now = audioCtx.currentTime;
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(melody[noteIdx % melody.length], now);
+                    gain.gain.setValueAtTime(0.035, now);
+                    gain.gain.linearRampToValueAtTime(0.001, now + 0.28);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.28);
+                    noteIdx++;
+                } catch (e) {}
+            }, 300);
+        }
+
+        function stopBGM() {
+            if (bgmInterval) {
+                clearInterval(bgmInterval);
+                bgmInterval = null;
+            }
+        }
+
+        // --- Game Setup & Logic ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // UI Elements
         const timerEl = document.getElementById('timer');
         const timerContainer = document.getElementById('timer-container');
         const heartsContainer = document.getElementById('hearts-container');
@@ -289,7 +430,6 @@
         const earnedPointsEl = document.getElementById('earned-points');
         const rewardTitleEl = document.getElementById('reward-title');
 
-        // Game Constants & Variables
         let screenWidth, screenHeight;
         let gameMode = 'timed'; 
         let gameStarted = false;
@@ -302,7 +442,6 @@
         let maxCombo = 0;
         let totalSteps = 0;
 
-        // Theme Shop Data & State
         const themes = [
             { id: 'lemon', name: '陽光檸檬黃', cost: 0, icon: '🍋', title: '檸檬黃冒險記', bgColor: '#fefce8', gridLine: '#fef08a', borderColor: '#facc15', lemonColor: '#fde047', textColor: 'text-amber-600', borderColorClass: 'border-yellow-300' },
             { id: 'apple', name: '熱情紅蘋果', cost: 20, icon: '🍎', title: '紅蘋果冒險記', bgColor: '#fff1f2', gridLine: '#ffe4e6', borderColor: '#f43f5e', lemonColor: '#fb7185', textColor: 'text-rose-600', borderColorClass: 'border-rose-300' },
@@ -376,6 +515,7 @@
         resize();
 
         function openShopModal() {
+            initAudio();
             shopPointsDisplay.textContent = totalPoints + ' 點';
             renderShopItems();
             shopModal.classList.remove('hidden');
@@ -419,6 +559,13 @@
             });
         }
 
+        function selectTheme(themeId) {
+            currentThemeId = themeId;
+            localStorage.setItem('lemon_current_theme', currentThemeId);
+            applyThemeStyles();
+            renderShopItems();
+        }
+
         function buyTheme(themeId, cost) {
             if (totalPoints >= cost) {
                 totalPoints -= cost;
@@ -435,14 +582,15 @@
                 shopPointsDisplay.textContent = totalPoints + ' 點';
                 renderShopItems();
             } else {
-                showAlertModal("✨ 積分不足", "您的積分還差一點點喔！多玩幾局累積積分再回來解鎖心儀的主題吧！");
+                showWarningModal("✨ 積分不足", "您的積分還差一點點喔！多玩幾局累積積分再回來解鎖心儀的主題吧！");
             }
         }
 
-        function showAlertModal(title, msg) {
+        function showWarningModal(title, msg) {
             document.getElementById('feedback-icon').textContent = '💡';
-            document.getElementById('feedback-title').textContent = title;
-            document.getElementById('feedback-title').className = 'text-lg font-black text-amber-600 mb-1';
+            const titleEl = document.getElementById('feedback-title');
+            titleEl.textContent = title;
+            titleEl.className = 'text-lg font-black text-amber-600 mb-1';
             feedbackMessage.textContent = msg;
             feedbackMessage.className = 'text-xs sm:text-sm text-slate-600 mb-3 bg-amber-50 p-2.5 rounded-2xl border border-amber-200';
             feedbackModal.classList.remove('hidden');
@@ -451,8 +599,9 @@
 
         function alertUserModal(msg) {
             document.getElementById('feedback-icon').textContent = '❌';
-            document.getElementById('feedback-title').textContent = '哎呀！答錯囉 (-1 心)';
-            document.getElementById('feedback-title').className = 'text-lg font-black text-rose-600 mb-1';
+            const titleEl = document.getElementById('feedback-title');
+            titleEl.textContent = '哎呀！答錯囉 (-1 心)';
+            titleEl.className = 'text-lg font-black text-rose-600 mb-1';
             feedbackMessage.textContent = msg;
             feedbackMessage.className = 'text-xs sm:text-sm text-slate-600 mb-3 bg-rose-50 p-2.5 rounded-2xl border border-rose-200';
             feedbackModal.classList.remove('hidden');
@@ -460,6 +609,7 @@
         }
 
         function openHintModal() {
+            initAudio();
             hintModal.classList.remove('hidden');
             setTimeout(() => hintModal.classList.remove('opacity-0'), 10);
             currentHintIdx = 0;
@@ -501,6 +651,11 @@
         }
 
         function startGameMode(mode) {
+            initAudio();
+            if (isBGMEnabled) {
+                startBGM();
+            }
+
             gameMode = mode;
             gameStarted = true;
             gameOver = false;
@@ -557,9 +712,13 @@
         function updateHeartsDisplay() {
             let hStr = '';
             for (let i = 0; i < 3; i++) {
-                hStr += (i < hearts) ? '❤' : '🖤';
+                if (i < hearts) {
+                    hStr += `<span style="color: #ef4444;">❤</span>`;
+                } else {
+                    hStr += `<span style="color: #1e293b;">❤</span>`;
+                }
             }
-            heartsDisplay.textContent = hStr;
+            heartsDisplay.innerHTML = hStr;
         }
 
         function nextMathQuestion() {
@@ -684,6 +843,7 @@
             mathInput.blur();
 
             if (userAns === currentQuestion.ans) {
+                playSound('correct');
                 mathStageQuestionCount++;
                 score += currentQuestion.steps;
                 totalSteps += currentQuestion.steps;
@@ -695,14 +855,14 @@
                 
                 executeMathJump(currentQuestion.steps);
             } else {
+                playSound('wrong');
+                playSound('heart_loss');
                 hearts--;
                 updateHeartsDisplay();
                 combo = 0;
                 comboBadge.classList.add('hidden');
 
-                feedbackMessage.textContent = `哎呀！答錯囉。正確答案是 「${currentQuestion.ans}」。小數點移動方向要再檢查一下喔！`;
-                feedbackModal.classList.remove('hidden');
-                setTimeout(() => feedbackModal.classList.remove('opacity-0'), 10);
+                alertUserModal(`哎呀！答錯囉。正確答案是 「${currentQuestion.ans}」。小數點移動方向要再檢查一下喔！`);
 
                 if (hearts <= 0) {
                     setTimeout(() => endGame(), 500);
@@ -719,6 +879,7 @@
         }
 
         function executeMathJump(stepCount) {
+            playSound('jump');
             player.isJumping = true;
             let targetPlatform = platforms[stepCount] || platforms[platforms.length - 1];
             const dx = targetPlatform.x - player.x;
@@ -883,6 +1044,7 @@
         });
 
         function jump(power) {
+            playSound('jump');
             player.isJumping = true;
             const targetPlatform = platforms[1];
             const dx = targetPlatform.x - player.x;
@@ -981,6 +1143,7 @@
                             }
                             scoreEl.textContent = score;
                         } else {
+                            playSound('fall');
                             spawnFloatingText("掉下去啦!", player.x, player.y - 40, '#ef4444');
                             endGame();
                         }
