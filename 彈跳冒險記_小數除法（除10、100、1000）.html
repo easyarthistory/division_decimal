@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>檸檬黃跳一跳 - 小數除法冒險</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
@@ -14,6 +14,10 @@
             -webkit-user-select: none;
             background-color: var(--bg-color, #fefce8);
             transition: background-color 0.3s ease;
+        }
+        /* Fix input zoom on mobile by using 16px font size */
+        input[type="text"] {
+            font-size: 16px !important;
         }
         .grid-background {
             background-color: #ffffff;
@@ -40,36 +44,36 @@
 </head>
 <body class="h-[100dvh] w-screen overflow-hidden flex flex-col justify-between items-center text-slate-800 p-2 sm:p-4 md:p-6 lg:max-w-4xl lg:mx-auto">
 
-    <header class="w-full max-w-md sm:max-w-xl md:max-w-2xl p-3 px-4 flex justify-between items-center z-10 bg-white/90 backdrop-blur-md rounded-2xl shadow-sm border-2 border-yellow-300">
+    <header class="w-full max-w-md sm:max-w-xl md:max-w-2xl p-2.5 px-4 flex justify-between items-center z-10 bg-white/90 backdrop-blur-md rounded-2xl shadow-sm border-2 border-yellow-300 shrink-0">
         <div id="timer-container" class="flex flex-col">
             <span class="text-[10px] sm:text-xs text-amber-700 font-bold tracking-wider">剩餘時間</span>
             <div class="flex items-center space-x-1">
-                <span id="timer" class="text-lg sm:text-xl font-black text-amber-600">45</span>
+                <span id="timer" class="text-base sm:text-xl font-black text-amber-600">45</span>
                 <span class="text-[10px] sm:text-xs text-amber-700">秒</span>
             </div>
         </div>
         <div id="hearts-container" class="hidden flex flex-col items-center">
             <span class="text-[10px] sm:text-xs text-rose-600 font-bold tracking-wider">剩餘生命</span>
-            <div id="hearts-display" class="flex space-x-1 text-base sm:text-lg">❤️❤❤️</div>
+            <div id="hearts-display" class="flex space-x-0.5 text-sm sm:text-lg">❤️️❤❤️</div>
         </div>
         <div id="mode-display" class="flex flex-col items-center">
             <span class="text-[10px] sm:text-xs text-yellow-800 font-bold tracking-wider">遊戲模式</span>
-            <span id="current-mode-name" class="text-xs sm:text-sm font-black text-amber-700 bg-yellow-200/80 px-2 py-0.5 rounded-full">限時挑戰</span>
+            <span id="current-mode-name" class="text-[11px] sm:text-sm font-black text-amber-700 bg-yellow-200/80 px-2 py-0.5 rounded-full">限時挑戰</span>
         </div>
         <div class="flex flex-col items-center">
             <span class="text-[10px] sm:text-xs text-amber-700 font-bold tracking-wider">當前得分</span>
             <div class="flex items-center space-x-1">
-                <span id="score" class="text-xl sm:text-2xl font-black text-slate-900">0</span>
-                <span id="combo-badge" class="hidden text-[10px] bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 px-1 py-0.5 rounded-full font-black animate-pulse">COMBO</span>
+                <span id="score" class="text-lg sm:text-2xl font-black text-slate-900">0</span>
+                <span id="combo-badge" class="hidden text-[9px] bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 px-1 py-0.5 rounded-full font-black animate-pulse">COMBO</span>
             </div>
         </div>
         <div class="flex flex-col items-end">
             <span class="text-[10px] sm:text-xs text-amber-700 font-bold tracking-wider">總積分</span>
-            <span id="total-points" class="text-lg sm:text-xl font-black text-amber-600">0</span>
+            <span id="total-points" class="text-base sm:text-xl font-black text-amber-600">0</span>
         </div>
     </header>
 
-    <main class="relative flex-1 w-full max-w-md sm:max-w-xl md:max-w-2xl my-2 flex justify-center items-center overflow-hidden rounded-3xl grid-background">
+    <main class="relative flex-1 w-full max-w-md sm:max-w-xl md:max-w-2xl my-2 flex justify-center items-center overflow-hidden rounded-3xl grid-background min-h-0">
         
         <!-- Decorative doodles -->
         <div class="absolute top-2 left-3 text-sky-600 font-bold text-lg select-none pointer-events-none opacity-85">~ ~ ~</div>
@@ -85,8 +89,8 @@
         <canvas id="gameCanvas" class="w-full h-full cursor-pointer z-10"></canvas>
         
         <!-- Start Menu -->
-        <div id="start-menu" class="absolute inset-0 flex flex-col justify-center items-center bg-yellow-100/40 backdrop-blur-xs transition-opacity duration-300 p-4 z-30">
-            <div id="start-menu-card" class="bg-white/95 backdrop-blur-md border-2 border-yellow-300 p-5 sm:p-7 rounded-3xl text-center shadow-2xl pop-in max-w-xs sm:max-w-sm w-full flex flex-col items-center">
+        <div id="start-menu" class="absolute inset-0 flex flex-col justify-center items-center bg-yellow-100/40 backdrop-blur-xs transition-opacity duration-300 p-4 z-30 overflow-y-auto">
+            <div id="start-menu-card" class="bg-white/95 backdrop-blur-md border-2 border-yellow-300 p-4 sm:p-7 rounded-3xl text-center shadow-2xl pop-in max-w-xs sm:max-w-sm w-full flex flex-col items-center my-auto">
                 <div id="main-theme-icon" class="text-4xl sm:text-5xl mb-1 animate-bounce">🍋</div>
                 <h2 id="main-title-text" class="text-xl sm:text-2xl font-black text-amber-600 mb-1">檸檬黃跳一跳</h2>
                 <p class="text-xs sm:text-sm text-slate-600 mb-3">掌握小數除法：除以 10、100、1000 的左移奧祕！</p>
@@ -114,45 +118,44 @@
         </div>
 
         <!-- Math Question & Answer Overlay (Active in Math Mode) -->
-        <div id="math-overlay" class="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3 bg-white/95 backdrop-blur-md border-2 border-amber-300 rounded-2xl p-2.5 sm:p-4 shadow-xl z-20 hidden flex flex-col items-center pop-in max-w-lg mx-auto">
-            <div class="flex justify-between w-full items-center mb-1 sm:mb-2">
+        <div id="math-overlay" class="absolute bottom-2 left-2 right-2 bg-white/95 backdrop-blur-md border-2 border-amber-300 rounded-2xl p-2 sm:p-3 shadow-xl z-20 hidden flex flex-col items-center pop-in max-w-lg mx-auto">
+            <div class="flex justify-between w-full items-center mb-1">
                 <div class="flex items-center space-x-2">
                     <span id="stage-badge" class="text-[9px] sm:text-xs font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-200">階段 1：基礎直觀左移</span>
                 </div>
                 <div class="flex items-center space-x-1">
-                    <button onclick="endGame()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-black text-[9px] sm:text-xs px-2 py-0.5 sm:py-1 rounded-lg border border-amber-300 flex items-center space-x-1 active:scale-95 transition-all shadow-sm">
+                    <button onclick="endGame()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-black text-[9px] sm:text-xs px-2 py-0.5 rounded-lg border border-amber-300 flex items-center space-x-1 active:scale-95 transition-all shadow-sm">
                         <span>🏁</span>
-                        <span>結束並結算積分</span>
+                        <span>結束並結算</span>
                     </button>
                     <span id="question-counter" class="text-[9px] sm:text-xs text-slate-500 font-bold ml-1">第 1 题</span>
                 </div>
             </div>
-            <div id="math-question-text" class="text-base sm:text-2xl font-black text-amber-700 mb-1 sm:mb-2 tracking-wide text-center">
+            <div id="math-question-text" class="text-sm sm:text-xl font-black text-amber-700 mb-1 tracking-wide text-center">
                 3 ÷ 10 = ?
             </div>
             <div class="flex space-x-2 w-full">
-                <input type="text" id="math-input" placeholder="請輸入答案 (例如 0.3)" onkeydown="if(event.key === 'Enter'){ submitMathAnswer(); }" class="flex-1 bg-yellow-50 border-2 border-yellow-300 rounded-xl px-3 py-1.5 sm:py-2 text-center text-sm sm:text-lg font-black text-slate-800 focus:outline-none focus:border-amber-500">
-                <button onclick="submitMathAnswer()" class="bg-amber-400 hover:bg-amber-500 text-slate-900 font-black px-4 sm:px-5 py-1.5 sm:py-2.5 rounded-xl shadow transition-all active:scale-95 text-xs sm:text-base">送出</button>
+                <input type="text" id="math-input" placeholder="請輸入答案 (例如 0.3)" onkeydown="if(event.key === 'Enter'){ submitMathAnswer(); }" class="flex-1 bg-yellow-50 border-2 border-yellow-300 rounded-xl px-3 py-1.5 text-center text-sm sm:text-base font-black text-slate-800 focus:outline-none focus:border-amber-500">
+                <button onclick="submitMathAnswer()" class="bg-amber-400 hover:bg-amber-500 text-slate-900 font-black px-4 sm:px-5 py-1.5 rounded-xl shadow transition-all active:scale-95 text-xs sm:text-sm shrink-0">送出</button>
             </div>
         </div>
     </main>
 
-    <div id="power-footer" class="w-full max-w-md sm:max-w-xl md:max-w-2xl px-4 py-2 z-10 flex flex-col items-center bg-white/80 rounded-2xl border border-yellow-200 shadow-sm">
-        <div class="w-full bg-yellow-100 rounded-full h-3 overflow-hidden p-0.5 border border-yellow-300 shadow-inner">
+    <div id="power-footer" class="w-full max-w-md sm:max-w-xl md:max-w-2xl px-4 py-2 z-10 flex flex-col items-center bg-white/80 rounded-2xl border border-yellow-200 shadow-sm shrink-0">
+        <div class="w-full bg-yellow-100 rounded-full h-2.5 sm:h-3 overflow-hidden p-0.5 border border-yellow-300 shadow-inner">
             <div id="power-bar" class="bg-gradient-to-r from-yellow-300 via-amber-400 to-sky-400 h-full rounded-full w-0 transition-all duration-75"></div>
         </div>
-        <span id="power-hint" class="text-xs sm:text-sm text-amber-800 font-bold mt-1">長按滑鼠/觸控或按空白鍵蓄力，放開跳躍 🍋 (電腦也可用空白鍵跳躍)</span>
+        <span id="power-hint" class="text-[11px] sm:text-sm text-amber-800 font-bold mt-1 text-center">長按滑鼠/觸控或按空白鍵蓄力，放開跳躍 🍋</span>
     </div>
 
-    <footer class="w-full text-center py-1 text-[11px] sm:text-xs text-slate-500 font-medium z-10">
-        — Ms. Hea Limited｜小數除法冒險 (手機/平板/電腦全支援)｜網頁由Google Gemini製作 —
+    <footer class="w-full text-center py-0.5 text-[10px] sm:text-xs text-slate-500 font-medium z-10 shrink-0">
+        — Ms. Hea Limited｜小數除法冒險 (全平台支援)｜網頁由Google Gemini製作 —
     </footer>
 
-    <!-- Hint Modal with Carousel -->
     <div id="hint-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 hidden opacity-0 transition-opacity duration-300 p-3">
-        <div class="bg-white border-2 border-yellow-300 rounded-3xl p-5 sm:p-7 w-full max-w-md sm:max-w-lg text-center shadow-2xl pop-in flex flex-col items-center text-slate-800 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white border-2 border-yellow-300 rounded-3xl p-4 sm:p-6 w-full max-w-md sm:max-w-lg text-center shadow-2xl pop-in flex flex-col items-center text-slate-800 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center w-full mb-2">
-                <h3 class="text-base sm:text-lg font-black text-amber-600 flex items-center space-x-1">
+                <h3 class="text-sm sm:text-base font-black text-amber-600 flex items-center space-x-1">
                     <span>💡</span>
                     <span>小數除法教學動畫 (第 1.22 課)</span>
                 </h3>
@@ -166,10 +169,10 @@
                 </div>
             </div>
 
-            <div class="flex space-x-3 w-full mb-4">
-                <button onclick="prevHintStep()" class="flex-1 py-2 sm:py-2.5 bg-yellow-100 hover:bg-yellow-200 text-amber-900 font-black rounded-xl border border-yellow-300 text-xs sm:text-sm shadow-sm">◀ 上一步</button>
-                <button onclick="toggleCarouselAutoPlay()" id="autoplay-btn" class="py-2 sm:py-2.5 px-4 bg-amber-400 hover:bg-amber-500 text-slate-900 font-black rounded-xl text-xs sm:text-sm shadow-sm">▶ 自動播放動畫</button>
-                <button onclick="nextHintStep()" class="flex-1 py-2 sm:py-2.5 bg-yellow-100 hover:bg-yellow-200 text-amber-900 font-black rounded-xl border border-yellow-300 text-xs sm:text-sm shadow-sm">下一步 ▶</button>
+            <div class="flex space-x-2 w-full mb-3">
+                <button onclick="prevHintStep()" class="flex-1 py-2 bg-yellow-100 hover:bg-yellow-200 text-amber-900 font-black rounded-xl border border-yellow-300 text-xs sm:text-sm shadow-sm">◀ 上一步</button>
+                <button onclick="toggleCarouselAutoPlay()" id="autoplay-btn" class="py-2 px-3 bg-amber-400 hover:bg-amber-500 text-slate-900 font-black rounded-xl text-xs sm:text-sm shadow-sm">▶ 自動播放</button>
+                <button onclick="nextHintStep()" class="flex-1 py-2 bg-yellow-100 hover:bg-yellow-200 text-amber-900 font-black rounded-xl border border-yellow-300 text-xs sm:text-sm shadow-sm">下一步 ▶</button>
             </div>
 
             <div class="bg-yellow-50/80 border border-yellow-200 rounded-2xl p-3 w-full text-left text-xs sm:text-sm text-slate-700 space-y-1">
@@ -181,69 +184,66 @@
         </div>
     </div>
 
-    <!-- Shop Modal -->
     <div id="shop-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 hidden opacity-0 transition-opacity duration-300 p-3">
-        <div class="bg-white border-2 border-purple-300 rounded-3xl p-5 sm:p-7 w-full max-w-md sm:max-w-lg text-center shadow-2xl pop-in flex flex-col items-center text-slate-800 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white border-2 border-purple-300 rounded-3xl p-4 sm:p-6 w-full max-w-md sm:max-w-lg text-center shadow-2xl pop-in flex flex-col items-center text-slate-800 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center w-full mb-3">
-                <h3 class="text-base sm:text-lg font-black text-purple-600 flex items-center space-x-1">
+                <h3 class="text-sm sm:text-base font-black text-purple-600 flex items-center space-x-1">
                     <span>🛒</span>
                     <span>積分解鎖主題商場</span>
                 </h3>
                 <button onclick="closeShopModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg px-2">✕</button>
             </div>
             
-            <div class="flex items-center justify-between w-full bg-purple-50 border border-purple-200 rounded-2xl p-3 mb-4">
+            <div class="flex items-center justify-between w-full bg-purple-50 border border-purple-200 rounded-2xl p-2.5 mb-3">
                 <span class="text-xs sm:text-sm font-bold text-purple-900">可用積分 (總得分)：</span>
-                <span id="shop-points-display" class="text-xl sm:text-2xl font-black text-purple-700">0 點</span>
+                <span id="shop-points-display" class="text-lg sm:text-xl font-black text-purple-700">0 點</span>
             </div>
 
-            <div id="shop-items-container" class="w-full space-y-3 mb-4">
+            <div id="shop-items-container" class="w-full space-y-2.5 mb-3">
                 <!-- Dynamically rendered theme cards -->
             </div>
 
-            <button onclick="closeShopModal()" class="w-full py-2.5 sm:py-3 bg-purple-200 hover:bg-purple-300 text-purple-900 font-black rounded-xl text-xs sm:text-sm shadow-sm">
+            <button onclick="closeShopModal()" class="w-full py-2.5 bg-purple-200 hover:bg-purple-300 text-purple-900 font-black rounded-xl text-xs sm:text-sm shadow-sm">
                 返回主選單
             </button>
         </div>
     </div>
 
-    <!-- Error Teaching Feedback Modal -->
     <div id="feedback-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 hidden opacity-0 transition-opacity duration-300 p-4">
-        <div class="bg-white border-2 border-rose-300 rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl pop-in flex flex-col items-center text-slate-800">
-            <div class="text-4xl mb-2 animate-bounce">❌</div>
-            <h3 class="text-xl font-black text-rose-600 mb-1">哎呀！答錯囉 (-1 心)</h3>
-            <p id="feedback-message" class="text-xs sm:text-sm text-slate-600 mb-4 bg-rose-50 p-3 rounded-2xl border border-rose-200">
+        <div class="bg-white border-2 border-rose-300 rounded-3xl p-5 w-full max-w-sm text-center shadow-2xl pop-in flex flex-col items-center text-slate-800">
+            <div class="text-3xl mb-1.5 animate-bounce">❌</div>
+            <h3 class="text-lg font-black text-rose-600 mb-1">哎呀！答錯囉 (-1 心)</h3>
+            <p id="feedback-message" class="text-xs sm:text-sm text-slate-600 mb-3 bg-rose-50 p-2.5 rounded-2xl border border-rose-200">
                 除以 10 時，小數點要向左移動 1 位！
             </p>
-            <button onclick="closeFeedbackModal()" class="w-full py-3 bg-yellow-300 hover:bg-yellow-400 text-slate-900 font-black text-sm rounded-2xl shadow-lg transform active:scale-95 transition-all">
+            <button onclick="closeFeedbackModal()" class="w-full py-2.5 bg-yellow-300 hover:bg-yellow-400 text-slate-900 font-black text-xs sm:text-sm rounded-2xl shadow-lg transform active:scale-95 transition-all">
                 知道了，繼續挑戰！ 🍋
             </button>
         </div>
     </div>
 
-    <!-- Game Over Modal -->
     <div id="gameover-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 hidden opacity-0 transition-opacity duration-300 p-4">
-        <div class="bg-white border-2 border-yellow-300 rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl pop-in flex flex-col items-center text-slate-800">
-            <div class="text-5xl mb-2 animate-bounce">🏆</div>
-            <h2 class="text-2xl font-black text-amber-600 mb-1">遊戲結束！</h2>
-            <p id="reward-title" class="text-xs sm:text-sm text-amber-700 font-bold mb-4 bg-yellow-100 px-3 py-1 rounded-full border border-yellow-300">解鎖獎勵：獲得積分</p>
+        <div class="bg-white border-2 border-yellow-300 rounded-3xl p-5 w-full max-w-sm text-center shadow-2xl pop-in flex flex-col items-center text-slate-800">
+            <div class="text-4xl mb-1.5 animate-bounce">🏆</div>
+            <h2 class="text-xl font-black text-amber-600 mb-1">遊戲結束！</h2>
+            <p id="reward-title" class="text-xs text-amber-700 font-bold mb-3 bg-yellow-100 px-3 py-1 rounded-full border border-yellow-300">解鎖獎勵：獲得積分</p>
 
-            <div class="bg-yellow-50/70 border border-yellow-200 rounded-2xl p-4 w-full mb-6 space-y-3">
-                <div class="flex justify-between items-center text-sm sm:text-base">
+            <div class="bg-yellow-50/70 border border-yellow-200 rounded-2xl p-3 w-full mb-4 space-y-2 text-xs sm:text-sm">
+                <div class="flex justify-between items-center">
                     <span class="text-slate-600">本局得分 (積分+<span id="earned-points">0</span>)</span>
-                    <span id="final-score" class="text-2xl font-black text-amber-600">0</span>
+                    <span id="final-score" class="text-xl font-black text-amber-600">0</span>
                 </div>
-                <div class="flex justify-between items-center text-sm sm:text-base">
+                <div class="flex justify-between items-center">
                     <span class="text-slate-600">成功跳躍格數</span>
-                    <span id="final-steps" class="text-lg font-bold text-slate-900">0 格</span>
+                    <span id="final-steps" class="text-base font-bold text-slate-900">0 格</span>
                 </div>
-                <div class="flex justify-between items-center text-sm sm:text-base">
+                <div class="flex justify-between items-center">
                     <span class="text-slate-600">最高連擊</span>
-                    <span id="final-max-combo" class="text-lg font-bold text-amber-600">x1</span>
+                    <span id="final-max-combo" class="text-base font-bold text-amber-600">x1</span>
                 </div>
             </div>
 
-            <button onclick="returnToMenu()" class="w-full py-3 bg-yellow-300 hover:bg-yellow-400 text-slate-900 font-black text-sm rounded-2xl shadow-lg transform active:scale-95 transition-all duration-150 flex justify-center items-center space-x-2 border border-yellow-400">
+            <button onclick="returnToMenu()" class="w-full py-2.5 bg-yellow-300 hover:bg-yellow-400 text-slate-900 font-black text-xs sm:text-sm rounded-2xl shadow-lg transform active:scale-95 transition-all duration-150 flex justify-center items-center space-x-2 border border-yellow-400">
                 <span>🏠</span>
                 <span>返回主選單</span>
             </button>
@@ -302,7 +302,7 @@
         let maxCombo = 0;
         let totalSteps = 0;
 
-        // Theme Shop Data & State with Icons & Names
+        // Theme Shop Data & State
         const themes = [
             { id: 'lemon', name: '陽光檸檬黃', cost: 0, icon: '🍋', title: '檸檬黃跳一跳', bgColor: '#fefce8', gridLine: '#fef08a', borderColor: '#facc15', lemonColor: '#fde047', textColor: 'text-amber-600', borderColorClass: 'border-yellow-300' },
             { id: 'apple', name: '熱情紅蘋果', cost: 20, icon: '🍎', title: '紅蘋果跳一跳', bgColor: '#fff1f2', gridLine: '#ffe4e6', borderColor: '#f43f5e', lemonColor: '#fb7185', textColor: 'text-rose-600', borderColorClass: 'border-rose-300' },
@@ -320,7 +320,6 @@
 
         totalPointsEl.textContent = totalPoints;
 
-        // Math Mode State variables
         let hearts = 3;
         let mathStage = 1; 
         let mathStageQuestionCount = 0;
@@ -328,15 +327,11 @@
         let currentQuestion = null;
         let lastQuestionText = "";
 
-        // Hint Carousel state
         const hintImages = ['18.jpg', '19.jpg', '20.jpg', '21.jpg', '22.jpg', '23.jpg'];
         let currentHintIdx = 0;
         let hintAutoplayTimer = null;
 
-        // Camera & World Offset
         let camera = { x: 0, y: 0, targetX: 0, targetY: 0 };
-
-        // Player object
         let player = {
             x: 0, y: 0, z: 0,
             vx: 0, vy: 0, vz: 0,
@@ -366,7 +361,7 @@
             mainThemeIcon.textContent = t.icon;
             mainTitleText.textContent = t.title;
             mainTitleText.className = `text-xl sm:text-2xl font-black ${t.textColor} mb-1`;
-            startMenuCard.className = `bg-white/95 backdrop-blur-md border-2 ${t.borderColorClass} p-5 sm:p-7 rounded-3xl text-center shadow-2xl pop-in max-w-xs sm:max-w-sm w-full flex flex-col items-center`;
+            startMenuCard.className = `bg-white/95 backdrop-blur-md border-2 ${t.borderColorClass} p-4 sm:p-7 rounded-3xl text-center shadow-2xl pop-in max-w-xs sm:max-w-sm w-full flex flex-col items-center my-auto`;
         }
         applyThemeStyles();
 
@@ -380,7 +375,6 @@
         window.addEventListener('resize', resize);
         resize();
 
-        // Shop Functions
         function openShopModal() {
             shopPointsDisplay.textContent = totalPoints + ' 點';
             renderShopItems();
@@ -400,7 +394,7 @@
                 const isSelected = currentThemeId === theme.id;
 
                 const itemCard = document.createElement('div');
-                itemCard.className = `flex items-center justify-between p-3 rounded-2xl border-2 ${isSelected ? 'border-purple-500 bg-purple-50' : 'border-slate-200 bg-white'}`;
+                itemCard.className = `flex items-center justify-between p-2.5 rounded-2xl border-2 ${isSelected ? 'border-purple-500 bg-purple-50' : 'border-slate-200 bg-white'}`;
                 
                 let btnHtml = '';
                 if (isSelected) {
@@ -412,10 +406,10 @@
                 }
 
                 itemCard.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <div class="w-9 h-9 rounded-2xl border border-slate-300 shadow-sm flex items-center justify-center text-lg" style="background-color: ${theme.lemonColor};">${theme.icon}</div>
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-8 h-8 rounded-xl border border-slate-300 shadow-sm flex items-center justify-center text-base" style="background-color: ${theme.lemonColor};">${theme.icon}</div>
                         <div class="text-left">
-                            <div class="text-sm font-black text-slate-800">${theme.name}</div>
+                            <div class="text-xs sm:text-sm font-black text-slate-800">${theme.name}</div>
                             <div class="text-[10px] text-slate-500">${isUnlocked ? '已擁有' : '需 ' + theme.cost + ' 積分'}</div>
                         </div>
                     </div>
@@ -458,7 +452,6 @@
             setTimeout(() => feedbackModal.classList.remove('opacity-0'), 10);
         }
 
-        // Hint Modal Functions
         function openHintModal() {
             hintModal.classList.remove('hidden');
             setTimeout(() => hintModal.classList.remove('opacity-0'), 10);
@@ -486,7 +479,7 @@
             if (hintAutoplayTimer) {
                 stopCarouselAutoplay();
             } else {
-                autoplayBtn.textContent = '⏸ 暫停動畫';
+                autoplayBtn.textContent = '⏸ 暫停';
                 hintAutoplayTimer = setInterval(() => {
                     nextHintStep();
                 }, 1000);
@@ -496,11 +489,10 @@
             if (hintAutoplayTimer) {
                 clearInterval(hintAutoplayTimer);
                 hintAutoplayTimer = null;
-                autoplayBtn.textContent = '▶ 自動播放動畫';
+                autoplayBtn.textContent = '▶ 自動播放';
             }
         }
 
-        // Start Game Mode
         function startGameMode(mode) {
             gameMode = mode;
             gameStarted = true;
@@ -558,7 +550,7 @@
         function updateHeartsDisplay() {
             let hStr = '';
             for (let i = 0; i < 3; i++) {
-                hStr += (i < hearts) ? '❤️' : '🖤';
+                hStr += (i < hearts) ? '❤️️' : '🖤';
             }
             heartsDisplay.textContent = hStr;
         }
@@ -601,7 +593,7 @@
                     }
 
                 } else if (mathStage === 2) {
-                    stageBadge.textContent = "階段 2：觀察位移步數推算除數";
+                    stageBadge.textContent = "階段 2：推算除數";
                     if (totalQuestionCounter === 6) {
                         qText = "95 ÷ ? = 0.95";
                         ans = "100";
@@ -618,7 +610,7 @@
                     }
 
                 } else if (mathStage === 3) {
-                    stageBadge.textContent = "階段 3：逆向思考還原被除數";
+                    stageBadge.textContent = "階段 3：還原被除數";
                     if (totalQuestionCounter === 11) {
                         qText = "? ÷ 10 = 0.07";
                         ans = "0.7";
@@ -635,7 +627,7 @@
                     }
 
                 } else {
-                    stageBadge.textContent = "階段 4：綜合隨機挑戰";
+                    stageBadge.textContent = "階段 4：綜合挑戰";
                     const randType = Math.floor(Math.random() * 3) + 1;
                     if (randType === 1) {
                         const baseNums = [3, 5, 24, 87, 420, 68, 91];
@@ -673,13 +665,18 @@
             mathQuestionText.textContent = qText;
             mathInput.value = "";
             currentQuestion = { qText, ans, steps };
-            mathInput.focus();
+            
+            // Blur input to prevent auto keyboard zoom jump issues on mobile after multiple rounds
+            mathInput.blur();
         }
 
         function submitMathAnswer() {
             if (!gameStarted || gameOver || gameMode !== 'math') return;
             const userAns = mathInput.value.trim();
             if (!userAns) return;
+
+            // Hide mobile keyboard
+            mathInput.blur();
 
             if (userAns === currentQuestion.ans) {
                 mathStageQuestionCount++;
@@ -787,10 +784,8 @@
         function generateNextPlatform(prevX, prevY) {
             const angle = -Math.PI / 4 + (Math.random() * 0.4 - 0.2);
             const distance = 120 + Math.random() * 100;
-            
             const x = prevX + Math.cos(angle) * distance;
             const y = prevY + Math.sin(angle) * distance;
-
             return { x: x, y: y, width: 80, depth: 80 };
         }
 
@@ -850,20 +845,17 @@
         function handleTouchEnd(e) {
             if (!isCharging || !gameStarted || gameOver || player.isJumping || gameMode === 'math') return;
             isCharging = false;
-            
             const power = Math.min(chargeTime, maxChargeTime) / maxChargeTime;
             jump(power);
             chargeTime = 0;
             document.getElementById('power-bar').style.width = '0%';
         }
 
-        // Mouse & Touch events
         canvas.addEventListener('mousedown', handleTouchStart);
         window.addEventListener('mouseup', handleTouchEnd);
         canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleTouchStart(); }, { passive: false });
         canvas.addEventListener('touchend', (e) => { e.preventDefault(); handleTouchEnd(); }, { passive: false });
 
-        // Keyboard support for PC (Spacebar to jump)
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 if (!gameStarted || gameOver || player.isJumping || gameMode === 'math') return;
